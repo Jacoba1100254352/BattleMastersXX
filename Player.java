@@ -1,846 +1,398 @@
-// ================================================================================
-// ENHANCED PLAYER CLASS - Should be in Player.java
-// Contains all player-related data and methods with full functionality
-// ================================================================================
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-class Player {
-    // Core Stats
-    private String name;
-    private int hp, maxHp;
-    private int mana, maxMana;
-    private int stamina, maxStamina;
-    private int level;
-    private int exp;
-    private int gold;
-    private int prestige;
-    
-    // Location and Domain
-    private String location;
-    private String currentDomain;
-    
-    // Equipment
-    private Weapon equippedWeapon;
-    private Armor equippedArmor;
-    private List<Accessory> equippedAccessories;
-    
-    // Collections
-    private List<Item> inventory;
-    private List<Companion> companions;
-    private List<Quest> activeQuests;
-    private Map<String, Integer> skills;
-    private Set<Achievement> unlockedAchievements;
-    
-    // Special Features
-    private Horse horse;
-    private Faction faction;
-    private Map<String, StatusEffect> statusEffects;
-    private boolean mythicMode;
-    private int maxCompanions;
-    
-    // Enhanced Stats
-    private int reputation;
-    private int combatRating;
-    private Map<String, Integer> elementalResistances;
-    private List<String> knownSpells;
-    private int totalGoldEarned;
-    private int enemiesDefeated;
-    private int questsCompleted;
-    private Map<String, Integer> skillExperience;
-    
-    private static Scanner scanner = new Scanner(System.in);
-    
-    /**
-     * Constructor for creating a new player
-     */
-    public Player(String name) {
-        this.name = name;
-        initializeBaseStats();
-        initializeCollections();
-        initializeLocation();
-        initializeSkills();
-        
-        System.out.println("Hero " + name + " rises to face the challenges ahead!");
+
+public static class Location {
+    private final String name;
+    public Location(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class Domain {
+    private final String name;
+    public Domain(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class Weapon {
+    private final String name;
+    public Weapon() { this.name = ""; }
+    public Weapon(String name) { this.name = name; }
+    public String getName() { return name; }
+}
+
+public static class Armor {
+    private final String name;
+    public Armor() { this.name = ""; }
+    public Armor(String name) { this.name = name; }
+    public String getName() { return name; }
+}
+
+public static class Companion {
+    private final String name;
+    public Companion(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class Horse {
+    private final String name;
+    public Horse(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class Faction {
+    private final String name;
+    public Faction(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class StatusEffects {
+    private final String name;
+    public StatusEffects(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class StartQuest {
+    private final String name;
+    public StartQuest(String _name) { this.name = _name; }
+    public String getName() { return name; }
+}
+
+public static class Player {
+    Map<String, Object> currentQuest;
+    List<Map<String, Object>> npcQuests;
+    String name;
+    double hp;
+    double maxHp;
+    double mana;
+    double maxMana;
+    int gold;
+    int exp;
+    int level;
+    int prestige;
+    Location location;
+    Domain currentDomain;
+    List<Map<String, Object>> inventory;
+    Map<String, Integer> weapon;
+    Map<String, Integer> armor;
+    List<Companion> companions;
+    final int MAX_COMPANIONS = 3;
+    Horse horse;
+    boolean mythicMode;
+    Faction faction;
+    List<StatusEffects> statusEffects;
+    StartQuest startQuest;
+    final List<Map<String, Object>> enemyTypes;
+    final Random random = new Random();
+
+    public Player(String _name) {
+        currentQuest = null;
+        npcQuests = new ArrayList<>();
+        name = _name;
+        hp = 100.0;
+        maxHp = 100.0;
+        mana = 50.0;
+        maxMana = 50.0;
+        gold = 0;
+        exp = 0;
+        level = 1;
+        prestige = 0;
+        location = new Location("Town Square");
+        currentDomain = new Domain("Central Domain");
+        inventory = new ArrayList<>();
+        weapon = null;
+        armor = null;
+        companions = new ArrayList<>();
+        horse = null;
+        mythicMode = false;
+        faction = null;
+        statusEffects = new ArrayList<>();
+        startQuest = null;
+
+        enemyTypes = List.of(
+            Map.of("name", "Fire Elemental", "hp", 150, "attack", 45, "exp", 400, "gold", 150, "is_boss", false, "weight", 5, "resist", List.of("fire"), "weak", List.of("ice")),
+            Map.of("name", "Ice Giant", "hp", 180, "attack", 50, "exp", 500, "gold", 180, "is_boss", false, "weight", 4, "resist", List.of("ice"), "weak", List.of("fire")),
+            Map.of("name", "Undead Warrior", "hp", 90, "attack", 35, "exp", 250, "gold", 100, "is_boss", false, "weight", 8, "resist", List.of("physical"), "weak", List.of("fire", "holy")),
+            Map.of("name", "Shadow Beast", "hp", 120, "attack", 40, "exp", 350, "gold", 120, "is_boss", false, "weight", 6, "resist", List.of("dark"), "weak", List.of("light")),
+            Map.of("name", "Goblin", "hp", 30, "attack", 10, "exp", 50, "gold", 20, "is_boss", false, "weight", 40),
+            Map.of("name", "Orc", "hp", 50, "attack", 15, "exp", 100, "gold", 40, "is_boss", false, "weight", 15),
+            Map.of("name", "Troll", "hp", 80, "attack", 20, "exp", 150, "gold", 70, "is_boss", false, "weight", 10),
+            Map.of("name", "Skeleton", "hp", 40, "attack", 12, "exp", 60, "gold", 30, "is_boss", false, "weight", 15),
+            Map.of("name", "Bandit", "hp", 35, "attack", 14, "exp", 70, "gold", 25, "is_boss", false, "weight", 15),
+            Map.of("name", "Serpent", "hp", 100, "attack", 30, "exp", 300, "gold", 60, "is_boss", false, "weight", 30),
+            Map.of("name", "Robber", "hp", 50, "attack", 15, "exp", 100, "gold", 40, "is_boss", false, "weight", 15),
+            Map.of("name", "Dark Elf", "hp", 70, "attack", 25, "exp", 200, "gold", 80, "is_boss", false, "weight", 12),
+            Map.of("name", "Dragon", "hp", 200, "attack", 40, "exp", 1000, "gold", 500, "is_boss", true, "weight", 5),
+            Map.of("name", "Dark Knight", "hp", 150, "attack", 35, "exp", 800, "gold", 400, "is_boss", true, "weight", 5),
+            Map.of("name", "Goblin lord", "hp", 350, "attack", 50, "exp", 1100, "gold", 650, "is_boss", true, "weight", 3),
+            Map.of("name", "Central Guardian", "hp", 1500, "attack", 120, "exp", 3000, "gold", 1500, "is_boss", true, "weight", 0.1),
+            Map.of("name", "Forest Titan", "hp", 2500, "attack", 180, "exp", 5000, "gold", 2500, "is_boss", true, "weight", 0.08),
+            Map.of("name", "Eternal Emperor", "hp", 25000, "attack", 1000, "exp", 50000, "gold", 25000, "is_boss", true, "weight", 0.001)
+        );
     }
-    
-    private void initializeBaseStats() {
-        this.hp = 100;
-        this.maxHp = 100;
-        this.mana = 50;
-        this.maxMana = 50;
-        this.stamina = 100;
-        this.maxStamina = 100;
-        this.level = 1;
-        this.exp = 0;
-        this.gold = 100;
-        this.prestige = 0;
-        this.reputation = 0;
-        this.combatRating = 10;
-        this.maxCompanions = 3;
-        this.mythicMode = false;
-        this.totalGoldEarned = 0;
-        this.enemiesDefeated = 0;
-        this.questsCompleted = 0;
+
+    public int attackValue() {
+        int base = 10 + level * 2;
+        int weaponPower = (weapon != null && weapon.containsKey("power")) ? weapon.get("power") : 0;
+        int prestigeBonus = prestige * 10;
+        return base + weaponPower + prestigeBonus;
     }
-    
-    private void initializeCollections() {
-        this.inventory = new ArrayList<>();
-        this.companions = new ArrayList<>();
-        this.activeQuests = new ArrayList<>();
-        this.skills = new LinkedHashMap<>();
-        this.skillExperience = new HashMap<>();
-        this.unlockedAchievements = new HashSet<>();
-        this.equippedAccessories = new ArrayList<>();
-        this.statusEffects = new HashMap<>();
-        this.elementalResistances = new HashMap<>();
-        this.knownSpells = new ArrayList<>();
-        
-        // Initialize elemental resistances
-        String[] elements = {"fire", "ice", "lightning", "earth", "dark", "light", "void", "divine"};
-        for (String element : elements) {
-            this.elementalResistances.put(element, 0);
+
+    public int defend(int dmg) {
+        int defense = (armor != null && armor.containsKey("defense")) ? armor.get("defense") : 0;
+        int prestigeDefense = prestige * 5;
+        if (faction != null && "Knights of the Phoenix".equals(faction.getName())) {
+            defense += 80;
         }
+        int realDmg = Math.max(dmg - defense - prestigeDefense, 0);
+        hp -= realDmg;
+        System.out.println("You received " + realDmg + " damage (after armor, prestige, and faction bonuses).");
+        return realDmg;
     }
-    
-    private void initializeLocation() {
-        this.location = "Town Square";
-        this.currentDomain = "Central Domain";
-    }
-    
-    private void initializeSkills() {
-        String[] skillNames = {"Combat", "Magic", "Crafting", "Trading", "Exploration", 
-                              "Leadership", "Stealth", "Diplomacy", "Survival", "Alchemy"};
-        
-        for (String skill : skillNames) {
-            this.skills.put(skill, 1);
-            this.skillExperience.put(skill, 0);
+
+    public void gainExp(int amount) {
+        exp += amount;
+        int needed = level * 100;
+        while (exp >= needed) {
+            level += 1;
+            exp -= needed;
+            maxHp += 20;
+            hp = maxHp;
+            maxMana += 10;
+            mana = maxMana;
+            System.out.println("*** You leveled up! You are now level " + level + "! ***");
+            needed = level * 100;
         }
-        
-        // Starting spells
-        this.knownSpells.addAll(List.of("heal", "fireball", "mana_restore"));
-    }
-    
-    /**
-     * Advanced attack calculation with multiple bonuses
-     */
-    public int calculateAttackPower() {
-        int basePower = 10 + (level * 3) + (prestige * 15);
-        int weaponPower = equippedWeapon != null ? equippedWeapon.getPower() : 0;
-        int skillBonus = skills.get("Combat") * 3;
-        int companionBonus = companions.size() * 8;
-        int factionBonus = faction != null ? faction.getAttackBonus() : 0;
-        
-        // Accessory bonuses
-        int accessoryBonus = equippedAccessories.stream()
-            .mapToInt(acc -> acc.getBonuses().getOrDefault("attack", 0))
-            .sum();
-        
-        return basePower + weaponPower + skillBonus + companionBonus + factionBonus + accessoryBonus;
-    }
-    
-    /**
-     * Advanced defense calculation
-     */
-    public int calculateDefense() {
-        int baseDefense = prestige * 8;
-        int armorDefense = equippedArmor != null ? equippedArmor.getDefense() : 0;
-        int skillBonus = skills.get("Combat") * 2;
-        int factionBonus = faction != null ? faction.getDefenseBonus() : 0;
-        
-        // Accessory bonuses
-        int accessoryBonus = equippedAccessories.stream()
-            .mapToInt(acc -> acc.getBonuses().getOrDefault("defense", 0))
-            .sum();
-        
-        return baseDefense + armorDefense + skillBonus + factionBonus + accessoryBonus;
-    }
-    
-    /**
-     * Take damage with comprehensive defense system
-     */
-    public void takeDamage(int damage, String element) {
-        // Apply elemental resistance
-        int resistance = elementalResistances.getOrDefault(element, 0);
-        if (resistance > 0) {
-            damage = Math.max(1, damage - resistance);
-            System.out.printf("Your %s resistance reduces damage by %d!\n", element, resistance);
-        }
-        
-        // Apply armor defense
-        int actualDamage = Math.max(1, damage - calculateDefense());
-        
-        // Status effect modifications
-        if (statusEffects.containsKey("vulnerable")) {
-            actualDamage = (int)(actualDamage * 1.5);
-            System.out.println("Vulnerability increases damage taken!");
-        }
-        
-        this.hp = Math.max(0, this.hp - actualDamage);
-        System.out.printf("You take %d %s damage! HP: %d/%d\n", actualDamage, element, hp, maxHp);
-        
-        // Check for death
-        if (this.hp <= 0) {
-            handleDeath();
-        }
-    }
-    
-    /**
-     * Handle player death with revival options
-     */
-    private void handleDeath() {
-        System.out.println("\n*** YOU HAVE FALLEN IN BATTLE ***");
-        
-        // Check for resurrection items
-        List<Item> reviveItems = inventory.stream()
-            .filter(item -> item.getName().contains("Phoenix") || item.getName().contains("Resurrection"))
-            .toList();
-            
-        if (!reviveItems.isEmpty()) {
-            System.out.println("You have items that can revive you:");
-            for (int i = 0; i < reviveItems.size(); i++) {
-                System.out.printf("%d. %s\n", i + 1, reviveItems.get(i).getName());
-            }
-            System.out.print("Use which item? (number or 'accept death'): ");
-            
-            String choice = scanner.nextLine();
-            try {
-                int itemChoice = Integer.parseInt(choice) - 1;
-                if (itemChoice >= 0 && itemChoice < reviveItems.size()) {
-                    inventory.remove(reviveItems.get(itemChoice));
-                    this.hp = maxHp / 2;
-                    System.out.println("*** YOU HAVE BEEN REVIVED! ***");
-                    return;
-                }
-            } catch (NumberFormatException ignored) {}
-        }
-        
-        // Faction revival
-        if (faction != null && faction.getName().equals("Order of the Phoenix")) {
-            System.out.println("The Phoenix faction's blessing revives you!");
-            this.hp = maxHp / 4;
-            return;
-        }
-        
-        System.out.println("Your adventure ends here...");
-    }
-    
-    /**
-     * Enhanced healing system
-     */
-    public void heal(int amount) {
-        if (statusEffects.containsKey("bleeding")) {
-            System.out.println("Bleeding reduces healing effectiveness!");
-            amount /= 2;
-        }
-        
-        if (statusEffects.containsKey("cursed")) {
-            System.out.println("A curse prevents healing!");
-            return;
-        }
-        
-        int oldHp = this.hp;
-        this.hp = Math.min(this.maxHp, this.hp + amount);
-        int actualHealing = this.hp - oldHp;
-        
-        System.out.printf("Healed %d HP. Current: %d/%d\n", actualHealing, hp, maxHp);
-        
-        // Skill experience for healing
-        if (actualHealing > 0) {
-            gainSkillExperience("Magic", 2);
-        }
-    }
-    
-    /**
-     * Enhanced mana restoration
-     */
-    public void restoreMana(int amount) {
-        int oldMana = this.mana;
-        this.mana = Math.min(this.maxMana, this.mana + amount);
-        int actualRestore = this.mana - oldMana;
-        
-        System.out.printf("Restored %d mana. Current: %d/%d\n", actualRestore, mana, maxMana);
-    }
-    
-    /**
-     * Stamina system for exploration and combat
-     */
-    public void restoreStamina(int amount) {
-        this.stamina = Math.min(this.maxStamina, this.stamina + amount);
-        System.out.printf("Restored %d stamina. Current: %d/%d\n", amount, stamina, maxStamina);
-    }
-    
-    public void consumeStamina(int amount) {
-        this.stamina = Math.max(0, this.stamina - amount);
-        if (this.stamina == 0) {
-            System.out.println("You are exhausted! Find a place to rest.");
-        }
-    }
-    
-    /**
-     * Enhanced experience gain with skill bonuses
-     */
-    public void gainExperience(int amount) {
-        // Leadership skill increases XP gain
-        int leadershipBonus = skills.get("Leadership") * 2;
-        int totalExp = amount + leadershipBonus;
-        
-        this.exp += totalExp;
-        System.out.printf("Gained %d experience! Total: %d\n", totalExp, exp);
-        
-        checkForLevelUp();
-        AchievementSystem.checkExperienceAchievements(this);
-    }
-    
-    /**
-     * Skill experience gain system
-     */
-    public void gainSkillExperience(String skillName, int amount) {
-        if (!skills.containsKey(skillName)) return;
-        
-        int currentExp = skillExperience.get(skillName);
-        int newExp = currentExp + amount;
-        skillExperience.put(skillName, newExp);
-        
-        // Check for skill level up
-        int currentLevel = skills.get(skillName);
-        int requiredExp = currentLevel * 100;
-        
-        if (newExp >= requiredExp) {
-            skills.put(skillName, currentLevel + 1);
-            skillExperience.put(skillName, newExp - requiredExp);
-            System.out.printf("*** %s skill increased to level %d! ***\n", skillName, currentLevel + 1);
-            
-            // Unlock new abilities
-            unlockSkillAbilities(skillName, currentLevel + 1);
-        }
-    }
-    
-    /**
-     * Unlock abilities based on skill levels
-     */
-    private void unlockSkillAbilities(String skillName, int level) {
-        switch (skillName) {
-            case "Magic" -> {
-                if (level == 5) {
-                    knownSpells.add("ice_storm");
-                    System.out.println("Learned new spell: Ice Storm!");
-                } else if (level == 10) {
-                    knownSpells.add("meteor");
-                    System.out.println("Learned new spell: Meteor!");
-                }
-            }
-            case "Combat" -> {
-                if (level == 10) {
-                    System.out.println("Unlocked: Critical Strike ability!");
-                } else if (level == 15) {
-                    System.out.println("Unlocked: Berserker Rage ability!");
-                }
-            }
-            case "Crafting" -> {
-                if (level == 5) {
-                    System.out.println("Can now craft magical items!");
-                } else if (level == 10) {
-                    System.out.println("Can now craft legendary equipment!");
-                }
-            }
-        }
-    }
-    
-    /**
-     * Enhanced level up system
-     */
-    private void checkForLevelUp() {
-        int expNeeded = level * 100;
-        while (exp >= expNeeded) {
-            levelUp();
-            expNeeded = level * 100;
-        }
-    }
-    
-    private void levelUp() {
-        exp -= level * 100;
-        level++;
-        
-        // Enhanced stat increases
-        int hpIncrease = 25 + (prestige * 8) + ThreadLocalRandom.current().nextInt(5, 15);
-        int manaIncrease = 15 + (prestige * 5) + ThreadLocalRandom.current().nextInt(3, 10);
-        int staminaIncrease = 10 + ThreadLocalRandom.current().nextInt(5, 10);
-        
-        maxHp += hpIncrease;
-        hp = maxHp; // Full heal on level up
-        maxMana += manaIncrease;
-        mana = maxMana;
-        maxStamina += staminaIncrease;
-        stamina = maxStamina;
-        
-        System.out.println("\n*** ⭐ LEVEL UP! ⭐ ***");
-        System.out.printf("You are now level %d!\n", level);
-        System.out.printf("HP increased by %d to %d\n", hpIncrease, maxHp);
-        System.out.printf("Mana increased by %d to %d\n", manaIncrease, maxMana);
-        System.out.printf("Stamina increased by %d to %d\n", staminaIncrease, maxStamina);
-        
-        // Attribute point allocation
-        allocateAttributePoints();
-        
-        // Check for prestige availability
         if (level >= 50) {
-            System.out.println("*** PRESTIGE AVAILABLE! ***");
-            System.out.println("Visit the Prestige Hall to unlock powerful bonuses!");
+            System.out.println("*** PRESTIGE AVAILABLE! You can now prestige at level 50! ***");
+            System.out.println("Visit the Prestige Hall to prestige and gain exclusive rewards!");
         }
-        
-        // Check for mythic mode
+    }
+
+    public boolean canPrestige() {
+        return level >= 50;
+    }
+
+    public boolean doPrestige() {
+        if (!canPrestige()) {
+            System.out.println("You must reach level 50 to prestige!");
+            return false;
+        }
+        prestige += 1;
+        level = 1;
+        exp = 0;
+        maxHp = 100 + (prestige * 50);
+        hp = maxHp;
+        maxMana = 50 + (prestige * 25);
+        mana = maxMana;
+        System.out.println("*** PRESTIGE " + prestige + " ACHIEVED! ***");
+        System.out.println("Level reset to 1, but you gained permanent bonuses!");
+        System.out.println("New HP: " + maxHp + ", New Mana: " + maxMana);
+        System.out.println("Attack bonus: " + (prestige * 10) + ", Defense bonus: " + (prestige * 5));
         if (prestige >= 10 && !mythicMode) {
             mythicMode = true;
-            System.out.println("*** MYTHIC MODE UNLOCKED! ***");
-            System.out.println("You can now access the Mythic Realm!");
+            System.out.println("*** MYTHIC PRESTIGE UNLOCKED! ***");
+            System.out.println("You now have access to the Mythic Gate and Mythic Challenges!");
         }
-        
-        AchievementSystem.checkLevelAchievements(this);
+        return true;
     }
-    
-    /**
-     * Allow player to allocate attribute points on level up
-     */
-    private void allocateAttributePoints() {
-        int points = 3 + (prestige > 0 ? 2 : 0);
-        System.out.printf("You have %d attribute points to allocate:\n", points);
-        
-        while (points > 0) {
-            System.out.println("1. Strength (+2 Attack Power)");
-            System.out.println("2. Constitution (+15 HP)");
-            System.out.println("3. Intelligence (+10 Mana)");
-            System.out.println("4. Agility (+8 Stamina)");
-            System.out.println("5. Wisdom (+5% Magic Resistance)");
-            System.out.printf("Points remaining: %d\n", points);
-            System.out.print("Choose attribute: ");
-            
-            try {
-                int choice = Integer.parseInt(scanner.nextLine());
-                switch (choice) {
-                    case 1 -> {
-                        combatRating += 2;
-                        System.out.println("Strength increased! Attack power improved.");
-                    }
-                    case 2 -> {
-                        maxHp += 15;
-                        hp += 15;
-                        System.out.println("Constitution increased! HP improved.");
-                    }
-                    case 3 -> {
-                        maxMana += 10;
-                        mana += 10;
-                        System.out.println("Intelligence increased! Mana improved.");
-                    }
-                    case 4 -> {
-                        maxStamina += 8;
-                        stamina += 8;
-                        System.out.println("Agility increased! Stamina improved.");
-                    }
-                    case 5 -> {
-                        for (String element : elementalResistances.keySet()) {
-                            elementalResistances.put(element, elementalResistances.get(element) + 2);
-                        }
-                        System.out.println("Wisdom increased! Elemental resistances improved.");
-                    }
-                    default -> {
-                        System.out.println("Invalid choice.");
-                        continue;
-                    }
+
+    public boolean isAlive() {
+        return hp > 0;
+    }
+
+    public void startQuest() {
+        if (currentQuest != null) {
+            System.out.println("You already have an active quest. Complete it before taking a new one.");
+            return;
+        }
+        int effectiveLevel = level + (prestige * 20);
+        List<Map<String, Object>> enemyPool = new ArrayList<>();
+        for (Map<String, Object> e : enemyTypes) {
+            boolean isBoss = (boolean) e.getOrDefault("is_boss", false);
+            int enemyHp = ((Number) e.getOrDefault("hp", 0)).intValue();
+            if (!isBoss && enemyHp <= effectiveLevel * 30 + 40) {
+                enemyPool.add(e);
+            }
+        }
+        if (enemyPool.isEmpty()) {
+            for (Map<String, Object> e : enemyTypes) {
+                if (!((boolean) e.getOrDefault("is_boss", false))) {
+                    enemyPool.add(e);
                 }
-                points--;
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a number.");
             }
         }
-    }
-    
-    /**
-     * Enhanced inventory display with categorization
-     */
-    public void showInventory() {
-        System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                        INVENTORY                             ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════╝");
-        
-        if (inventory.isEmpty()) {
-            System.out.println("Your inventory is empty.");
+        if (enemyPool.isEmpty()) {
+            System.out.println("No available enemies to start a quest.");
             return;
         }
-        
-        Map<String, List<Item>> categorizedItems = categorizeInventory();
-        
-        for (Map.Entry<String, List<Item>> entry : categorizedItems.entrySet()) {
-            System.out.println("\n┌─ " + entry.getKey() + " ─┐");
-            for (int i = 0; i < entry.getValue().size(); i++) {
-                Item item = entry.getValue().get(i);
-                String rarity = getRarityIndicator(item);
-                System.out.printf("│ %d. %s %s %s\n", i + 1, rarity, item.getName(), item.getDescription());
-            }
-            System.out.println("└" + "─".repeat(entry.getKey().length() + 4) + "┘");
+        int randomIndex = random.nextInt(enemyPool.size());
+        Map<String, Object> questEnemy = enemyPool.get(randomIndex);
+        currentQuest = Map.of(
+            "name", questEnemy.get("name"),
+            "hp", questEnemy.get("hp"),
+            "attack", questEnemy.get("attack"),
+            "exp", questEnemy.get("exp"),
+            "gold", questEnemy.get("gold")
+        );
+        System.out.println("A quest has started against: " + questEnemy.get("name"));
+        System.out.print("A quest has been assigned: Defeat a " + questEnemy.get("name") + "!");
+    }
+
+    public boolean completeQuest(String defeatedEnemyName) {
+        if (currentQuest == null || currentQuest.isEmpty()) {
+            System.out.println("No active quest to complete.");
+            return false;
         }
-        
-        System.out.printf("\nInventory: %d/%d items | Weight: %d/%d\n", 
-            inventory.size(), getMaxInventorySize(), getCurrentWeight(), getMaxWeight());
+        Object nameObj = currentQuest.get("name");
+        if (!(nameObj instanceof String)) {
+            System.out.println("Invalid current quest data.");
+            currentQuest = null;
+            return false;
+        }
+        String questName = (String) nameObj;
+        if (!questName.equals(defeatedEnemyName)) {
+            System.out.println("You have not defeated the required enemy: " + questName);
+            return false;
+        }
+        System.out.println("*** Quest Completed: You defeated the " + questName + "! ***");
+        int bonusExp = ((Number) currentQuest.getOrDefault("exp", 0)).intValue();
+        int bonusGold = ((Number) currentQuest.getOrDefault("gold", 0)).intValue();
+        Map<String, Object> bonusItem = randomRewardItem();
+        gainExp(bonusExp);
+        gold += bonusGold;
+        inventory.add(bonusItem);
+        System.out.println("You earned " + bonusExp + " EXP, " + bonusGold + " gold, and found a " + bonusItem.getOrDefault("name", "mysterious item") + "!");
+        currentQuest = null;
+        return true;
     }
-    
-    /**
-     * Get rarity indicator for items
-     */
-    private String getRarityIndicator(Item item) {
-        if (item.getName().contains("Legendary")) return "🟣";
-        if (item.getName().contains("Epic")) return "🟠";
-        if (item.getName().contains("Rare")) return "🔵";
-        if (item.getName().contains("Uncommon")) return "🟢";
-        return "⚪";
+
+    private Map<String, Object> randomRewardItem() {
+        List<Map<String, Object>> pool = List.of(
+            Map.of("name", "Small Health Potion", "type", "consumable", "heal", 50),
+            Map.of("name", "Iron Sword", "type", "weapon", "power", 5),
+            Map.of("name", "Leather Armor", "type", "armor", "defense", 3),
+            Map.of("name", "Mana Elixir", "type", "consumable", "mana", 30)
+        );
+        return pool.get(random.nextInt(pool.size()));
     }
-    
-    /**
-     * Categorize inventory items for better organization
-     */
-    private Map<String, List<Item>> categorizeInventory() {
-        Map<String, List<Item>> categories = new LinkedHashMap<>();
-        categories.put("⚔️ Weapons", new ArrayList<>());
-        categories.put("🛡️ Armor", new ArrayList<>());
-        categories.put("💍 Accessories", new ArrayList<>());
-        categories.put("🧪 Consumables", new ArrayList<>());
-        categories.put("🔨 Materials", new ArrayList<>());
-        categories.put("📜 Quest Items", new ArrayList<>());
-        categories.put("💎 Treasures", new ArrayList<>());
-        categories.put("📚 Miscellaneous", new ArrayList<>());
-        
-        for (Item item : inventory) {
-            if (item instanceof Weapon) {
-                categories.get("⚔️ Weapons").add(item);
-            } else if (item instanceof Armor) {
-                categories.get("🛡️ Armor").add(item);
-            } else if (item instanceof Accessory) {
-                categories.get("💍 Accessories").add(item);
-            } else if (item instanceof Consumable) {
-                categories.get("🧪 Consumables").add(item);
-            } else if (item.getType().equals("Material")) {
-                categories.get("🔨 Materials").add(item);
-            } else if (item.isQuestItem()) {
-                categories.get("📜 Quest Items").add(item);
-            } else if (item.getValue() > 500) {
-                categories.get("💎 Treasures").add(item);
-            } else {
-                categories.get("📚 Miscellaneous").add(item);
+
+    public boolean acceptNpcQuest(String npcName, Map<String, Object> questData) {
+        for (Map<String, Object> q : npcQuests) {
+            Object npc = q.get("npc");
+            if (npcName.equals(npc)) {
+                System.out.println("You already have a quest from " + npcName + "!");
+                return false;
             }
         }
-        
-        // Remove empty categories
-        categories.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-        return categories;
+        Map<String, Object> newQuest = new HashMap<>();
+        newQuest.put("npc", npcName);
+        newQuest.put("type", questData.get("type"));
+        newQuest.put("target", questData.getOrDefault("target", null));
+        newQuest.put("quantity", ((Number) questData.getOrDefault("quantity", 1)).intValue());
+        newQuest.put("progress", 0);
+        newQuest.put("reward", questData.get("reward"));
+        newQuest.put("description", questData.get("description"));
+        npcQuests.add(newQuest);
+        System.out.println("Quest accepted from " + npcName + ": " + questData.get("description"));
+        return true;
     }
-    
-    /**
-     * Enhanced item usage system
-     */
-    public void useItem() {
-        List<Consumable> usableItems = inventory.stream()
-            .filter(item -> item instanceof Consumable)
-            .map(item -> (Consumable) item)
-            .toList();
-            
-        if (usableItems.isEmpty()) {
-            System.out.println("You have no usable items.");
-            return;
+
+    public void updateNpcQuestProgress(String questType, String target) {
+        List<Map<String, Object>> toComplete = new ArrayList<>();
+        for (Map<String, Object> quest : npcQuests) {
+            String type = (String) quest.get("type");
+            Object qTarget = quest.get("target");
+            int quantity = ((Number) quest.getOrDefault("quantity", 1)).intValue();
+            int progress = ((Number) quest.getOrDefault("progress", 0)).intValue();
+            if (!type.equals(questType)) continue;
+            boolean match = false;
+            if ("find_item".equals(type) && target != null && target.equals(qTarget)) match = true;
+            if ("defeat_enemy".equals(type) && target != null && target.equals(qTarget)) match = true;
+            if ("deliver_item".equals(type) && target != null && target.equals(qTarget)) match = true;
+            if (match) {
+                progress += 1;
+                quest.put("progress", progress);
+                if (progress >= quantity) toComplete.add(quest);
+            }
         }
-        
-        System.out.println("\n=== USABLE ITEMS ===");
-        for (int i = 0; i < usableItems.size(); i++) {
-            Consumable item = usableItems.get(i);
-            System.out.printf("%d. %s - %s\n", i + 1, item.getName(), item.getDescription());
-        }
-        
-        System.out.print("Use which item? (number or 'back'): ");
-        String input = scanner.nextLine();
-        
-        if (!input.equals("back")) {
-            try {
-                int choice = Integer.parseInt(input) - 1;
-                if (choice >= 0 && choice < usableItems.size()) {
-                    Consumable item = usableItems.get(choice);
-                    item.use(this);
-                    inventory.remove(item);
-                    
-                    // Skill experience for using items
-                    if (item instanceof HealthPotion || item instanceof ManaPotion) {
-                        gainSkillExperience("Alchemy", 3);
-                    }
-                } else {
-                    System.out.println("Invalid choice.");
+        for (Map<String, Object> q : toComplete) completeNpcQuest(q);
+    }
+
+    public void completeNpcQuest(Map<String, Object> quest) {
+        System.out.println("*** NPC Quest Completed for " + quest.get("npc") + "! ***");
+        Object rewardObj = quest.get("reward");
+        if (rewardObj instanceof Map) {
+            Map<?, ?> reward = (Map<?, ?>) rewardObj;
+            if (reward.containsKey("gold")) {
+                int g = ((Number) reward.get("gold")).intValue();
+                gold += g;
+                System.out.println("You received " + g + " gold!");
+            }
+            if (reward.containsKey("exp")) {
+                int e = ((Number) reward.get("exp")).intValue();
+                gainExp(e);
+                System.out.println("You received " + e + " experience!");
+            }
+            if (reward.containsKey("item")) {
+                Object item = reward.get("item");
+                if (item instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> itemMap = (Map<String, Object>) item;
+                    inventory.add(itemMap);
+                    System.out.println("You received " + itemMap.getOrDefault("name", "an item") + "!");
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
+            }
+        }
+        npcQuests.remove(quest);
+    }
+
+    public void checkNpcQuestItems() {
+        for (Map<String, Object> quest : new ArrayList<>(npcQuests)) {
+            String type = (String) quest.get("type");
+            if (!"find_item".equals(type)) continue;
+            String target = (String) quest.get("target");
+            int quantity = ((Number) quest.getOrDefault("quantity", 1)).intValue();
+            int itemCount = 0;
+            for (Map<String, Object> item : inventory) {
+                Object iname = item.get("name");
+                if (iname instanceof String && ((String) iname).equals(target)) itemCount++;
+            }
+            int progress = ((Number) quest.getOrDefault("progress", 0)).intValue();
+            if (itemCount >= quantity && progress < quantity) {
+                quest.put("progress", quantity);
+                completeNpcQuest(quest);
+                break;
             }
         }
     }
-    
-    /**
-     * Enhanced equipment display
-     */
-    public void showEquipment() {
-        System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                       EQUIPMENT                              ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════╝");
-        
-        System.out.printf("⚔️ Weapon: %s\n", 
-            equippedWeapon != null ? equippedWeapon.getName() + " (Power: " + equippedWeapon.getPower() + ")" : "None");
-        System.out.printf("🛡️ Armor: %s\n", 
-            equippedArmor != null ? equippedArmor.getName() + " (Defense: " + equippedArmor.getDefense() + ")" : "None");
-        
-        if (!equippedAccessories.isEmpty()) {
-            System.out.println("💍 Accessories:");
-            for (Accessory accessory : equippedAccessories) {
-                System.out.printf("  • %s\n", accessory.getName());
-            }
-        } else {
-            System.out.println("💍 Accessories: None");
+
+    public boolean addCompanion(Companion companion) {
+        if (companions.size() >= MAX_COMPANIONS) {
+            System.out.println("You can only have " + MAX_COMPANIONS + " companions maximum!");
+            return false;
         }
-        
-        System.out.println("\n📊 Combat Statistics:");
-        System.out.printf("  Attack Power: %d\n", calculateAttackPower());
-        System.out.printf("  Defense: %d\n", calculateDefense());
-        System.out.printf("  Combat Rating: %d\n", combatRating);
+        companions.add(companion);
+        System.out.println(companion.getName() + " has joined you.");
+        return true;
     }
-    
-    /**
-     * Enhanced weapon equipping with comparison
-     */
-    public void equipWeapon() {
-        List<Weapon> weapons = inventory.stream()
-            .filter(item -> item instanceof Weapon)
-            .map(item -> (Weapon) item)
-            .sorted((w1, w2) -> Integer.compare(w2.getPower(), w1.getPower()))
-            .toList();
-            
-        if (weapons.isEmpty()) {
-            System.out.println("You have no weapons to equip.");
-            return;
-        }
-        
-        System.out.println("\n=== AVAILABLE WEAPONS ===");
-        for (int i = 0; i < weapons.size(); i++) {
-            Weapon weapon = weapons.get(i);
-            String comparison = "";
-            if (equippedWeapon != null) {
-                int diff = weapon.getPower() - equippedWeapon.getPower();
-                comparison = diff > 0 ? " (+" + diff + ")" : diff < 0 ? " (" + diff + ")" : " (=)";
-            }
-            System.out.printf("%d. %s (Power: %d)%s\n", i + 1, weapon.getName(), weapon.getPower(), comparison);
-        }
-        
-        System.out.print("Equip which weapon? (number or 'back'): ");
-        String input = scanner.nextLine();
-        
-        if (!input.equals("back")) {
-            try {
-                int choice = Integer.parseInt(input) - 1;
-                if (choice >= 0 && choice < weapons.size()) {
-                    equippedWeapon = weapons.get(choice);
-                    System.out.printf("Equipped %s! New attack power: %d\n", 
-                        equippedWeapon.getName(), calculateAttackPower());
-                } else {
-                    System.out.println("Invalid choice.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
-            }
-        }
-    }
-    
-    /**
-     * Enhanced armor equipping with comparison
-     */
-    public void equipArmor() {
-        List<Armor> armors = inventory.stream()
-            .filter(item -> item instanceof Armor)
-            .map(item -> (Armor) item)
-            .sorted((a1, a2) -> Integer.compare(a2.getDefense(), a1.getDefense()))
-            .toList();
-            
-        if (armors.isEmpty()) {
-            System.out.println("You have no armor to equip.");
-            return;
-        }
-        
-        System.out.println("\n=== AVAILABLE ARMOR ===");
-        for (int i = 0; i < armors.size(); i++) {
-            Armor armor = armors.get(i);
-            String comparison = "";
-            if (equippedArmor != null) {
-                int diff = armor.getDefense() - equippedArmor.getDefense();
-                comparison = diff > 0 ? " (+" + diff + ")" : diff < 0 ? " (" + diff + ")" : " (=)";
-            }
-            System.out.printf("%d. %s (Defense: %d)%s\n", i + 1, armor.getName(), armor.getDefense(), comparison);
-        }
-        
-        System.out.print("Equip which armor? (number or 'back'): ");
-        String input = scanner.nextLine();
-        
-        if (!input.equals("back")) {
-            try {
-                int choice = Integer.parseInt(input) - 1;
-                if (choice >= 0 && choice < armors.size()) {
-                    equippedArmor = armors.get(choice);
-                    System.out.printf("Equipped %s! New defense: %d\n", 
-                        equippedArmor.getName(), calculateDefense());
-                } else {
-                    System.out.println("Invalid choice.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input.");
-            }
-        }
-    }
-    
-    /**
-     * Show all active quests with detailed information
-     */
-    public void showQuests() {
-        System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                      ACTIVE QUESTS                          ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════╝");
-        
-        if (activeQuests.isEmpty()) {
-            System.out.println("📜 You have no active quests.");
-            System.out.println("💡 Visit NPCs or explore to find new quests!");
-            return;
-        }
-        
-        for (int i = 0; i < activeQuests.size(); i++) {
-            Quest quest = activeQuests.get(i);
-            System.out.printf("\n┌─ Quest %d: %s ─┐\n", i + 1, quest.getName());
-            System.out.printf("│ %s\n", quest.getDescription());
-            System.out.printf("│ Progress: %s\n", quest.getProgressString());
-            System.out.printf("│ Reward: %s\n", quest.getRewardDescription());
-            System.out.printf("│ Difficulty: %s\n", quest.getDifficulty());
-            System.out.println("└" + "─".repeat(quest.getName().length() + 12) + "┘");
-        }
-        
-        System.out.printf("\nCompleted Quests: %d | Success Rate: %.1f%%\n", 
-            questsCompleted, questsCompleted > 0 ? (questsCompleted * 100.0 / (questsCompleted + activeQuests.size())) : 0.0);
-    }
-    
-    /**
-     * Show comprehensive player statistics
-     */
-    public void showDetailedStats() {
-        System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println("║                   CHARACTER STATISTICS                       ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════╝");
-        
-        System.out.printf("👤 Name: %s\n", name);
-        System.out.printf("⭐ Level: %d (XP: %d/%d)\n", level, exp, level * 100);
-        System.out.printf("🏆 Prestige: %d\n", prestige);
-        System.out.println();
-        
-        System.out.println("📊 Core Statistics:");
-        System.out.printf("  ❤️  HP: %d/%d\n", hp, maxHp);
-        System.out.printf("  🔵 Mana: %d/%d\n", mana, maxMana);
-        System.out.printf("  💚 Stamina: %d/%d\n", stamina, maxStamina);
-        System.out.printf("  💰 Gold: %d (Total Earned: %d)\n", gold, totalGoldEarned);
-        System.out.println();
-        
-        System.out.println("⚔️ Combat Statistics:");
-        System.out.printf("  🗡️  Attack Power: %d\n", calculateAttackPower());
-        System.out.printf("  🛡️  Defense: %d\n", calculateDefense());
-        System.out.printf("  🎯 Combat Rating: %d\n", combatRating);
-        System.out.printf("  💀 Enemies Defeated: %d\n", enemiesDefeated);
-        System.out.println();
-        
-        System.out.println("🔮 Elemental Resistances:");
-        elementalResistances.forEach((element, resistance) -> 
-            System.out.printf("  %s: %d%%\n", 
-                element.substring(0, 1).toUpperCase() + element.substring(1), resistance));
-        System.out.println();
-        
-        System.out.println("🎓 Skills:");
-        skills.forEach((skill, level) -> {
-            int exp = skillExperience.get(skill);
-            int expNeeded = level * 100;
-            System.out.printf("  %s: Level %d (XP: %d/%d)\n", skill, level, exp, expNeeded);
-        });
-        System.out.println();
-        
-        if (faction != null) {
-            System.out.printf("🏛️ Faction: %s (Reputation: %d)\n", faction.getName(), reputation);
-        }
-        
-        System.out.printf("👥 Companions: %d/%d\n", companions.size(), maxCompanions);
-        System.out.printf("📜 Active Quests: %d (Completed: %d)\n", activeQuests.size(), questsCompleted);
-        System.out.printf("🏅 Achievements: %d unlocked\n", unlockedAchievements.size());
-        
-        if (mythicMode) {
-            System.out.println("✨ MYTHIC MODE: ACTIVE");
-        }
-    }
-    
-    // Weight and inventory management
-    private int getCurrentWeight() {
-        return inventory.stream().mapToInt(Item::getWeight).sum();
-    }
-    
-    private int getMaxWeight() {
-        return 100 + (level * 5) + (skills.get("Survival") * 10);
-    }
-    
-    // Enhanced getter methods
-    public boolean isAlive() { return hp > 0; }
-    public String getName() { return name; }
-    public int getHp() { return hp; }
-    public int getMaxHp() { return maxHp; }
-    public int getMana() { return mana; }
-    public int getMaxMana() { return maxMana; }
-    public int getStamina() { return stamina; }
-    public int getMaxStamina() { return maxStamina; }
-    public int getLevel() { return level; }
-    public int getExp() { return exp; }
-    public int getGold() { return gold; }
-    public int getPrestige() { return prestige; }
-    public String getLocation() { return location; }
-    public String getCurrentDomain() { return currentDomain; }
-    public Horse getHorse() { return horse; }
-    public Faction getFaction() { return faction; }
-    public List<Companion> getCompanions() { return companions; }
-    public Map<String, Integer> getSkills() { return skills; }
-    public List<String> getKnownSpells() { return knownSpells; }
-    public int getMaxInventorySize() { return 50 + (level * 2) + (prestige * 5); }
-    public Map<String, StatusEffect> getStatusEffects() { return statusEffects; }
-    public int getReputation() { return reputation; }
-    public int getTotalGoldEarned() { return totalGoldEarned; }
-    public int getEnemiesDefeated() { return enemiesDefeated; }
-    public int getQuestsCompleted() { return questsCompleted; }
-    public Set<Achievement> getUnlockedAchievements() { return unlockedAchievements; }
-    public boolean isMythicMode() { return mythicMode; }
-    public List<Item> getInventory() { return inventory; }
-    public Weapon getEquippedWeapon() { return equippedWeapon; }
-    public Armor getEquippedArmor() { return equippedArmor; }
-    
-    // Enhanced setter methods
-    public void setLocation(String location) { this.location = location; }
-    public void setCurrentDomain(String domain) { this.currentDomain = domain; }
-    public void setHorse(Horse horse) { this.horse = horse; }
-    public void setFaction(Faction faction) { this.faction = faction; }
-    public void addGold(int amount) { 
-        this.gold += amount; 
-        this.totalGoldEarned += amount;
-    }
-    public void subtractGold(int amount) { this.gold = Math.max(0, this.gold - amount); }
-    public void addToInventory(Item item) { 
-        if (getCurrentWeight() + item.getWeight() <= getMaxWeight()) {
-            this.inventory.add(item); 
-        } else {
-            System.out.println("Item too heavy! Cannot carry more.");
-        }
-    }
-    public void removeFromInventory(Item item) { this.inventory.remove(item); }
-    public void incrementEnemiesDefeated() { this.enemiesDefeated++; }
-    public void incrementQuestsCompleted() { this.questsCompleted++; }
-    public void addQuest(Quest quest) { this.activeQuests.add(quest); }
-    public void removeQuest(Quest quest) { this.activeQuests.remove(quest); }
-    public void addAchievement(Achievement achievement) { this.unlockedAchievements.add(achievement); }
-    public void addStatusEffect(String name, StatusEffect effect) { this.statusEffects.put(name, effect); }
-    public void removeStatusEffect(String name) { this.statusEffects.remove(name); }
+}
+
+public static void main(String[] args) {
+    Player p = new Player("Devin");
+    p.faction = new Faction("Knights of the Phoenix");
+    p.weapon = Map.of("power", 12);
+    p.armor = Map.of("defense", 8);
+    p.startQuest();
+    p.gainExp(1200);
+    p.addCompanion(new Companion("Luna"));
+    Map<String, Object> questData = new HashMap<>();
+    questData.put("type", "find_item");
+    questData.put("target", "Ancient Coin");
+    questData.put("quantity", 2);
+    questData.put("reward", Map.of("gold", 100, "exp", 200));
+    questData.put("description", "Find two Ancient Coins.");
+    p.acceptNpcQuest("Merchant", questData);
+    p.inventory.add(Map.of("name", "Ancient Coin"));
+    p.checkNpcQuestItems();
+    p.inventory.add(Map.of("name", "Ancient Coin"));
+    p.checkNpcQuestItems();
 }
