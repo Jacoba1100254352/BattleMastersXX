@@ -9,6 +9,7 @@ import Items.Consumable;
 import Items.Item;
 import Player.Companion;
 import Player.Player;
+import Systems.SettingsSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,14 +92,15 @@ public class CombatSystem {
 		System.out.printf("│ %s: %d/%d HP                        │\n",
 		                  enemy.getName(), enemy.getHp(), enemy.getMaxHp());
 		
-		// Show status effects
-		if (!player.getStatusEffects().isEmpty()) {
-			System.out.printf("│ Your effects: %s │\n",
-			                  String.join(", ", player.getStatusEffects().keySet()));
-		}
-		if (!enemy.getStatusEffects().isEmpty()) {
-			System.out.printf("│ Enemy.Enemy effects: %s │\n",
-			                  String.join(", ", enemy.getStatusEffects().keySet()));
+		if (SettingsSystem.isDetailedCombatLog()) {
+			if (!player.getStatusEffects().isEmpty()) {
+				System.out.printf("│ Your effects: %s │\n",
+					          String.join(", ", player.getStatusEffects().keySet()));
+			}
+			if (!enemy.getStatusEffects().isEmpty()) {
+				System.out.printf("│ Enemy effects: %s │\n",
+					          String.join(", ", enemy.getStatusEffects().keySet()));
+			}
 		}
 		
 		System.out.println("└────────────────────────────────────────────────┘");

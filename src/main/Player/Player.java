@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
@@ -56,6 +55,7 @@ public class Player {
 	private int enemiesDefeated;
 	private int questsCompleted;
 	private final List<Map<String, Object>> enemyTypes;
+	private int skillPoints;
 	private final Random random = new Random();
 	
 	public Player(String playerName) {
@@ -90,6 +90,7 @@ public class Player {
 		this.questsCompleted = 0;
 		this.currentQuest = null;
 		this.npcQuests = new ArrayList<>();
+		this.skillPoints = 0;
 		
 		initialiseSkills();
 		this.enemyTypes = initialiseEnemyTypes();
@@ -217,6 +218,7 @@ public class Player {
 			mana = maxMana;
 			maxStamina += 5;
 			stamina = maxStamina;
+			skillPoints += 1;
 			System.out.println("*** You leveled up! You are now level " + level + "! ***");
 			needed = level * 100;
 		}
@@ -265,18 +267,70 @@ public class Player {
 	// -------------------------------------------------------------------------
 	
 	public void addToInventory(Item item) {
+		addToInventory(item, true, true);
+	}
+
+	public void addToInventory(Item item, boolean autoEquip) {
+		addToInventory(item, autoEquip, true);
+	}
+
+	public void addToInventory(Item item, boolean autoEquip, boolean announce) {
 		if (item == null) return;
 		inventory.add(item);
-		System.out.println(item.getName() + " added to inventory.");
-		if (equippedWeapon == null && item instanceof Weapon weapon) {
-			equipWeapon(weapon);
-		} else if (equippedArmor == null && item instanceof Armor armor) {
-			equipArmor(armor);
+		if (announce) {
+			System.out.println(item.getName() + " added to inventory.");
+		}
+		if (autoEquip) {
+			if (equippedWeapon == null && item instanceof Weapon weapon) {
+				equipWeapon(weapon);
+			} else if (equippedArmor == null && item instanceof Armor armor) {
+				equipArmor(armor);
+			}
 		}
 	}
 	
 	public void removeFromInventory(Item item) {
 		inventory.remove(item);
+	}
+
+	public void clearInventory() {
+		inventory.clear();
+	}
+
+	public boolean removeItemsByName(String itemName, int count) {
+		if (count <= 0) return true;
+		int removed = 0;
+		for (int i = inventory.size() - 1; i >= 0 && removed < count; i--) {
+			Item item = inventory.get(i);
+			if (item.getName().equals(itemName)) {
+				inventory.remove(i);
+				removed++;
+			}
+		}
+		return removed == count;
+	}
+
+	public boolean removeItemsByType(Class<? extends Item> type, int count) {
+		if (count <= 0) return true;
+		int removed = 0;
+		for (int i = inventory.size() - 1; i >= 0 && removed < count; i--) {
+			Item item = inventory.get(i);
+			if (type.isInstance(item)) {
+				inventory.remove(i);
+				removed++;
+			}
+		}
+		return removed == count;
+	}
+
+	public List<Item> getItemsByType(Class<? extends Item> type) {
+		List<Item> result = new ArrayList<>();
+		for (Item item : inventory) {
+			if (type.isInstance(item)) {
+				result.add(item);
+			}
+		}
+		return result;
 	}
 	
 	public List<Item> getInventory() {
@@ -316,21 +370,43 @@ public class Player {
 	}
 	
 	public void equipWeapon(Weapon weapon) {
+		equipWeapon(weapon, true);
+	}
+
+	public void equipWeapon(Weapon weapon, boolean announce) {
 		if (weapon == null) return;
 		if (!inventory.contains(weapon)) {
-			addToInventory(weapon);
+			addToInventory(weapon, false, false);
 		}
 		this.equippedWeapon = weapon;
-		System.out.println("Equipped weapon: " + weapon.getName());
+		if (announce) {
+			System.out.println("Equipped weapon: " + weapon.getName());
+		}
 	}
-	
+
 	public void equipArmor(Armor armor) {
+		equipArmor(armor, true);
+	}
+
+	public void equipArmor(Armor armor, boolean announce) {
 		if (armor == null) return;
 		if (!inventory.contains(armor)) {
-			addToInventory(armor);
+			addToInventory(armor, false, false);
 		}
 		this.equippedArmor = armor;
-		System.out.println("Equipped armor: " + armor.getName());
+		if (announce) {
+			System.out.println("Equipped armor: " + armor.getName());
+		}
+	}
+
+	public void unequipWeapon() {
+		this.equippedWeapon = null;
+		System.out.println("You stow your weapon.");
+	}
+
+	public void unequipArmor() {
+		this.equippedArmor = null;
+		System.out.println("You remove your equipped armor.");
 	}
 	
 	// -------------------------------------------------------------------------
@@ -368,6 +444,32 @@ public class Player {
 	
 	public Map<String, Integer> getSkills() {
 		return Collections.unmodifiableMap(skills);
+	}
+
+	public int getSkillPoints() {
+		return skillPoints;
+	}
+
+	public void addSkillPoints(int amount) {
+		if (amount > 0) {
+			skillPoints += amount;
+		}
+	}
+
+	public boolean trainSkill(String skill, int cost) {
+		if (cost <= 0) cost = 1;
+		if (skillPoints < cost) {
+			System.out.println("Not enough skill points.");
+			return false;
+		}
+		skillPoints -= cost;
+		int newValue = skills.merge(skill, cost, Integer::sum);
+		System.out.println("" + skill + " increased to " + newValue + ".");
+		return true;
+	}
+
+	public void setSkillLevel(String skill, int value) {
+		skills.put(skill, Math.max(1, value));
 	}
 	
 	public void gainSkillExperience(String skill, int amount) {
@@ -649,9 +751,19 @@ public class Player {
 	public void setHorse(Horse horse) { this.horse = horse; }
 	public Faction getFaction() { return faction; }
 	public void setFaction(Faction faction) { this.faction = faction; }
+	public void setEquippedWeapon(Weapon weapon) { this.equippedWeapon = weapon; }
+	public void setEquippedArmor(Armor armor) { this.equippedArmor = armor; }
 	public int getReputation() { return reputation; }
 	public void addReputation(int amount) { reputation += amount; }
 	public List<Companion> getCompanions() { return Collections.unmodifiableList(companions); }
+	public Companion getCompanionByName(String name) {
+		for (Companion companion : companions) {
+			if (companion.getName().equalsIgnoreCase(name)) {
+				return companion;
+			}
+		}
+		return null;
+	}
 	public boolean addCompanion(Companion companion) {
 		if (companions.size() >= MAX_COMPANIONS) {
 			System.out.println("You can only have " + MAX_COMPANIONS + " companions maximum!");
@@ -661,14 +773,200 @@ public class Player {
 		System.out.println(companion.getName() + " has joined you.");
 		return true;
 	}
+
+	public boolean removeCompanion(String name) {
+		for (int i = 0; i < companions.size(); i++) {
+			if (companions.get(i).getName().equalsIgnoreCase(name)) {
+				companions.remove(i);
+				System.out.println(name + " has departed.");
+				return true;
+			}
+		}
+		System.out.println("No companion named " + name + " found.");
+		return false;
+	}
 	public boolean isMythicMode() { return mythicMode; }
 	public void setMythicMode(boolean mythicMode) { this.mythicMode = mythicMode; }
 	public int getEnemiesDefeated() { return enemiesDefeated; }
 	public int getQuestsCompleted() { return questsCompleted; }
 	public int getTotalGoldEarned() { return totalGoldEarned; }
 	public Set<String> getUnlockedAchievements() { return Collections.unmodifiableSet(unlockedAchievements); }
-	
+
 	public void addAchievement(String achievementId) {
 		unlockedAchievements.add(achievementId);
+	}
+
+	public Snapshot createSnapshot() {
+		List<String> inventoryNames = inventory.stream().map(Item::getName).toList();
+		Map<String, Integer> skillCopy = new HashMap<>(skills);
+		List<String> spellCopy = new ArrayList<>(knownSpells);
+		List<String> achievementCopy = new ArrayList<>(unlockedAchievements);
+		List<String> companionNames = companions.stream().map(Companion::getName).toList();
+		String weaponName = equippedWeapon != null ? equippedWeapon.getName() : null;
+		String armorName = equippedArmor != null ? equippedArmor.getName() : null;
+		String horseName = horse != null ? horse.getName() : null;
+		double horseSpeed = horse != null ? horse.getSpeed() : 0.0;
+		return new Snapshot(
+			name,
+			level,
+			exp,
+			hp,
+			maxHp,
+			mana,
+			maxMana,
+			stamina,
+			maxStamina,
+			prestige,
+			gold,
+			totalGoldEarned,
+			reputation,
+			skillPoints,
+			enemiesDefeated,
+			questsCompleted,
+			location,
+			currentDomain,
+			mythicMode,
+			inventoryNames,
+			skillCopy,
+			spellCopy,
+			achievementCopy,
+			companionNames,
+			weaponName,
+			armorName,
+			horseName,
+			horseSpeed
+		);
+	}
+
+	public void restoreFromSnapshot(Snapshot snapshot) {
+		if (!name.equals(snapshot.playerName)) {
+			System.out.println("Loading save for " + snapshot.playerName + " into current character " + name + ".");
+		}
+		level = snapshot.level;
+		exp = snapshot.exp;
+		hp = snapshot.hp;
+		maxHp = snapshot.maxHp;
+		mana = snapshot.mana;
+		maxMana = snapshot.maxMana;
+		stamina = snapshot.stamina;
+		maxStamina = snapshot.maxStamina;
+		prestige = snapshot.prestige;
+		gold = snapshot.gold;
+		totalGoldEarned = snapshot.totalGoldEarned;
+		reputation = snapshot.reputation;
+		skillPoints = snapshot.skillPoints;
+		enemiesDefeated = snapshot.enemiesDefeated;
+		questsCompleted = snapshot.questsCompleted;
+		location = snapshot.location;
+		currentDomain = snapshot.currentDomain;
+		mythicMode = snapshot.mythicMode;
+		inventory.clear();
+		for (String itemName : snapshot.inventoryNames) {
+			Item item = ItemFactory.createNamedItem(itemName);
+			addToInventory(item, false, false);
+		}
+		skills.clear();
+		skills.putAll(snapshot.skillLevels);
+		knownSpells.clear();
+		knownSpells.addAll(snapshot.knownSpells);
+		unlockedAchievements.clear();
+		unlockedAchievements.addAll(snapshot.achievements);
+		companions.clear();
+		for (String companionName : snapshot.companionNames) {
+			companions.add(new Companion(companionName, 1.0) { });
+		}
+		if (snapshot.horseName != null) {
+			horse = new Horse(snapshot.horseName, snapshot.horseSpeed);
+		} else {
+			horse = null;
+		}
+		if (snapshot.equippedWeaponName != null) {
+			for (Item item : inventory) {
+				if (item instanceof Weapon weapon && weapon.getName().equals(snapshot.equippedWeaponName)) {
+					equipWeapon(weapon, false);
+					break;
+				}
+			}
+		} else {
+			equippedWeapon = null;
+		}
+		if (snapshot.equippedArmorName != null) {
+			for (Item item : inventory) {
+				if (item instanceof Armor armor && armor.getName().equals(snapshot.equippedArmorName)) {
+					equipArmor(armor, false);
+					break;
+				}
+			}
+		} else {
+			equippedArmor = null;
+		}
+	}
+
+	public static class Snapshot {
+		public final String playerName;
+		public final int level;
+		public final int exp;
+		public final int hp;
+		public final int maxHp;
+		public final int mana;
+		public final int maxMana;
+		public final int stamina;
+		public final int maxStamina;
+		public final int prestige;
+		public final int gold;
+		public final int totalGoldEarned;
+		public final int reputation;
+		public final int skillPoints;
+		public final int enemiesDefeated;
+		public final int questsCompleted;
+		public final String location;
+		public final String currentDomain;
+		public final boolean mythicMode;
+		public final List<String> inventoryNames;
+		public final Map<String, Integer> skillLevels;
+		public final List<String> knownSpells;
+		public final List<String> achievements;
+		public final List<String> companionNames;
+		public final String equippedWeaponName;
+		public final String equippedArmorName;
+		public final String horseName;
+		public final double horseSpeed;
+
+		public Snapshot(String playerName, int level, int exp, int hp, int maxHp, int mana, int maxMana,
+		               int stamina, int maxStamina, int prestige, int gold, int totalGoldEarned,
+		               int reputation, int skillPoints, int enemiesDefeated, int questsCompleted,
+		               String location, String currentDomain, boolean mythicMode,
+		               List<String> inventoryNames, Map<String, Integer> skillLevels,
+		               List<String> knownSpells, List<String> achievements, List<String> companionNames,
+		               String equippedWeaponName, String equippedArmorName, String horseName, double horseSpeed) {
+			this.playerName = playerName;
+			this.level = level;
+			this.exp = exp;
+			this.hp = hp;
+			this.maxHp = maxHp;
+			this.mana = mana;
+			this.maxMana = maxMana;
+			this.stamina = stamina;
+			this.maxStamina = maxStamina;
+			this.prestige = prestige;
+			this.gold = gold;
+			this.totalGoldEarned = totalGoldEarned;
+			this.reputation = reputation;
+			this.skillPoints = skillPoints;
+			this.enemiesDefeated = enemiesDefeated;
+			this.questsCompleted = questsCompleted;
+			this.location = location;
+			this.currentDomain = currentDomain;
+			this.mythicMode = mythicMode;
+			this.inventoryNames = List.copyOf(inventoryNames);
+			this.skillLevels = new HashMap<>(skillLevels);
+			this.knownSpells = List.copyOf(knownSpells);
+			this.achievements = List.copyOf(achievements);
+			this.companionNames = List.copyOf(companionNames);
+			this.equippedWeaponName = equippedWeaponName;
+			this.equippedArmorName = equippedArmorName;
+			this.horseName = horseName;
+			this.horseSpeed = horseSpeed;
+		}
 	}
 }

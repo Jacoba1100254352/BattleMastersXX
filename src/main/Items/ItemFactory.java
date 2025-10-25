@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 public class ItemFactory {
     private static Map<String, String[]> weaponsByElement;
     private static Map<String, String[]> armorByType;
+    private static Map<String, Supplier<Item>> namedItems;
     private static boolean initialized = false;
     
     public static void initialize() {
@@ -19,6 +21,7 @@ public class ItemFactory {
         
         setupWeaponData();
         setupArmorData();
+        setupNamedItems();
         initialized = true;
     }
     
@@ -38,6 +41,27 @@ public class ItemFactory {
         armorByType.put("Light", new String[]{"Leather Vest", "Scout Items.Armor", "Assassin Garb", "Ranger Cloak", "Thief Suit"});
         armorByType.put("Medium", new String[]{"Chain Mail", "Scale Items.Armor", "Reinforced Vest", "Battle Garb", "War Cloak"});
         armorByType.put("Heavy", new String[]{"Plate Items.Armor", "Full Plate", "Knight Items.Armor", "Guardian Plate", "Fortress Mail"});
+    }
+
+    private static void setupNamedItems() {
+        namedItems = new HashMap<>();
+        
+        namedItems.put("Minor Health Potion", () -> createHealthPotion("Minor Health Potion", 30));
+        namedItems.put("Small Health Potion", () -> createHealthPotion("Small Health Potion", 50));
+        namedItems.put("Healing Draught", () -> createHealthPotion("Healing Draught", 45));
+        namedItems.put("Traveler's Tonic", () -> createHealthPotion("Traveler's Tonic", 40));
+        
+        namedItems.put("Minor Mana Potion", () -> createManaPotion("Minor Mana Potion", 20));
+        namedItems.put("Mana Elixir", () -> createManaPotion("Mana Elixir", 30));
+        namedItems.put("Arcane Brew", () -> createManaPotion("Arcane Brew", 30));
+        namedItems.put("Mystic Infusion", () -> createManaPotion("Mystic Infusion", 35));
+        
+        namedItems.put("Rusty Sword", () -> createWeapon("Rusty Sword", 15, "physical"));
+        namedItems.put("Iron Sword", () -> createWeapon("Iron Sword", 25, "physical"));
+        namedItems.put("Gilded Dagger", () -> createWeapon("Gilded Dagger", 45, "physical"));
+        
+        namedItems.put("Basic Shield", () -> createArmor("Basic Shield", 20, "Light"));
+        namedItems.put("Leather Armor", () -> createArmor("Leather Armor", 35, "Light"));
     }
     
     /**
@@ -181,5 +205,17 @@ public class ItemFactory {
             case "Heavy" -> Math.max(8, baseWeight * 2);
             default -> baseWeight;
         };
+    }
+
+    /**
+     * Recreate an item from its display name.
+     */
+    public static Item createNamedItem(String name) {
+        initialize();
+        Supplier<Item> supplier = namedItems.get(name);
+        if (supplier != null) {
+            return supplier.get();
+        }
+        return new BasicItem(name, "Recovered treasure", "Generic", 100, 1);
     }
 }

@@ -12,13 +12,13 @@ import Enemy.Enemy;
 import Enemy.EnemyFactory;
 import Items.Item;
 import Items.ItemFactory;
-import Items.Material;
 import Player.Horse;
 import Player.Player;
 import Scene.support.NPC;
 import Scene.support.NPCSystem;
 import Scene.support.Shop;
 import Scene.support.ShopSystem;
+import Systems.TreasureSystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -315,11 +315,12 @@ public class GameWorld {
     private int getTravelTime(String from, String to, Horse horse) {
         String fromDomain = getDomainForLocation(from);
         String toDomain = getDomainForLocation(to);
+        Domain targetDomain = domains.get(toDomain);
         
         int baseTime;
-        if (fromDomain.equals(toDomain)) {
+        if (toDomain.equals(fromDomain)) {
             baseTime = ThreadLocalRandom.current().nextInt(2, 9); // Within domain
-        } else if (domains.get(toDomain).getRealm().equals("Mythic")) {
+        } else if (targetDomain != null && "Mythic".equals(targetDomain.getRealm())) {
             baseTime = ThreadLocalRandom.current().nextInt(30, 51); // To mythic
         } else {
             baseTime = ThreadLocalRandom.current().nextInt(15, 26); // Between regular
@@ -585,42 +586,16 @@ public class GameWorld {
     private void handleTreasureFind(Player player) {
         System.out.println("You discover a hidden treasure!");
         
-        double treasureType = ThreadLocalRandom.current().nextDouble();
-        
-        if (treasureType < 0.4) {
-            // Gold
-            int goldFound = 50 + (player.getLevel() * 10) + ThreadLocalRandom.current().nextInt(1, 100);
-            player.addGold(goldFound);
-            System.out.println("Found " + goldFound + " gold!");
-        } else if (treasureType < 0.7) {
-            // Items
-            Item treasure = ItemFactory.createRandomTreasure(player.getLevel());
+        int goldFound = 30 + ThreadLocalRandom.current().nextInt(20, 80) + player.getLevel() * 8;
+        player.addGold(goldFound);
+        System.out.println("Found " + goldFound + " gold!");
+
+        for (Item treasure : TreasureSystem.generateRandomTreasure(player.getLevel())) {
             player.addToInventory(treasure);
-            System.out.println("Found: " + treasure.getName());
-        } else {
-            // Special materials
-            String domain = player.getCurrentDomain();
-            String elementType = getElementForDomain(domain);
-            Material material = new Material(elementType + " Crystal", "Magical", player.getLevel() / 5 + 1);
-            player.addToInventory(material);
-            System.out.println("Found rare material: " + material.getName());
+            System.out.println("Collected: " + treasure.getName());
         }
         
         player.gainSkillExperience("Exploration", 8);
-    }
-    
-    private String getElementForDomain(String domain) {
-        return switch (domain) {
-            case "Fire Scene.Domain", "Volcano Scene.Domain" -> "Fire";
-            case "Ice Scene.Domain" -> "Ice";
-            case "Shadow Scene.Domain" -> "Shadow";
-            case "Light Scene.Domain" -> "Light";
-            case "Forest Scene.Domain" -> "Nature";
-            case "Mountain Scene.Domain" -> "Earth";
-            case "Ocean Scene.Domain" -> "Water";
-            case "Sky Scene.Domain" -> "Air";
-            default -> "Neutral";
-        };
     }
     
     /**

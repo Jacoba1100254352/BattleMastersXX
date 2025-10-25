@@ -16,6 +16,14 @@ import Scene.GameWorld;
 import Scene.TimeWeatherSystem;
 import Scene.support.NPCSystem;
 import Scene.support.ShopSystem;
+import Systems.CompanionSystem;
+import Systems.CraftingSystem;
+import Systems.EquipmentSystem;
+import Systems.SaveLoadSystem;
+import Systems.SaveSystem;
+import Systems.SettingsSystem;
+import Systems.SkillSystem;
+import Systems.TreasureSystem;
 import Player.Player;
 
 import java.util.List;
@@ -91,22 +99,22 @@ public class Main {
      * Main game loop - handles all player input and game flow
      */
     private static void gameLoop() {
-        while (player.isAlive()) {
-            displayGameStatus();
-            displayMainMenu();
-            
-            String choice = scanner.nextLine().toLowerCase().trim();
-            processPlayerChoice(choice);
-            
-            // Random events and time progression
-            timeWeather.advanceTime(1);
-            processRandomEvents();
-            
-            // Auto-save every 10 actions
-/*            if (timeWeather.getTotalHours() % 10 == 0) {
-                SaveSystem.autoSave(player, gameWorld, timeWeather);
-            }*/
-        }
+		while (player.isAlive()) {
+			displayGameStatus();
+			displayMainMenu();
+			
+			String choice = scanner.nextLine().toLowerCase().trim();
+			processPlayerChoice(choice);
+			
+			// Random events and time progression
+			timeWeather.advanceTime(1);
+			processRandomEvents();
+			
+			// Auto-save every 10 hours of in-game time if enabled
+			if (SettingsSystem.isAutoSaveEnabled() && timeWeather.getTotalHours() % 10 == 0) {
+				SaveSystem.quickSave(player, gameWorld, timeWeather);
+			}
+		}
         
         System.out.println("\n=== GAME OVER ===");
         displayFinalStats();

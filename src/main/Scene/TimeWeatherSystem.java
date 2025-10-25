@@ -76,6 +76,16 @@ public class TimeWeatherSystem {
 		}
 	}
 
+	public Snapshot createSnapshot() {
+		return new Snapshot(totalMinutes, currentWeather, hoursUntilWeatherChange);
+	}
+
+	public void restoreFromSnapshot(Snapshot snapshot) {
+		this.totalMinutes = snapshot.totalMinutes();
+		this.currentWeather = snapshot.currentWeather();
+		this.hoursUntilWeatherChange = snapshot.hoursUntilWeatherChange();
+	}
+
 	private static class WeatherDebuffEffect extends Effects.StatusEffect {
 		WeatherDebuffEffect() {
 			super("Soaked", 2, 0, false);
@@ -89,4 +99,6 @@ public class TimeWeatherSystem {
 			}
 		}
 	}
+
+	public record Snapshot(int totalMinutes, String currentWeather, int hoursUntilWeatherChange) { }
 }

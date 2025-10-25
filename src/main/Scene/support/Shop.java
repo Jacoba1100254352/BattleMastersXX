@@ -2,8 +2,8 @@ package Scene.support;
 
 import Items.Item;
 import Items.ItemFactory;
-import Player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Shop {
@@ -18,15 +18,13 @@ public class Shop {
 	public String getName() { return name; }
 	public String getLocation() { return location; }
 
-	public void showInventory(Player player) {
-		System.out.println(name + " shop inventory:");
-		List<Item> wares = List.of(
-			ItemFactory.createHealthPotion("Healing Draught", 45),
-			ItemFactory.createManaPotion("Mystic Infusion", 35)
-		);
-		for (int i = 0; i < wares.size(); i++) {
-			Item item = wares.get(i);
-			System.out.printf("%d. %s (%s)%n", i + 1, item.getName(), item.getType());
-		}
+	public List<ShopItem> createInventory(int playerLevel) {
+		List<ShopItem> items = new ArrayList<>();
+		items.add(new ShopItem(ItemFactory.createHealthPotion("Healing Draught", 45 + playerLevel), 120 + playerLevel * 5));
+		items.add(new ShopItem(ItemFactory.createManaPotion("Mystic Infusion", 35 + playerLevel), 140 + playerLevel * 6));
+		items.add(new ShopItem(ItemFactory.createRandomTreasure(playerLevel), 160 + playerLevel * 8));
+		return items;
 	}
+
+	public record ShopItem(Item item, int price) { }
 }
