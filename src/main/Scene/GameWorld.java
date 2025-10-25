@@ -1,13 +1,20 @@
-// ================================================================================
-// COMPLETE GAME WORLD SYSTEM - Should be in GameWorld.java
+package Scene;// ================================================================================
+// COMPLETE GAME WORLD SYSTEM - Should be in Scene.GameWorld.java
 // Contains all 28 domains, locations, and world management
 // ================================================================================
+
+import Combat.CombatSystem;
+import Effects.StatusEffect;
+import Enemy.Enemy;
+import Enemy.EnemyFactory;
+import Items.Item;
+import Items.Material;
 
 import java.util.*;
 /**
  * Complete Game World with 28 domains and advanced location system
  */
-class GameWorld {
+public class GameWorld {
     private Map<String, Domain> domains;
     private Map<String, List<String>> locationConnections;
     private Map<String, Integer> travelTimes;
@@ -27,170 +34,170 @@ class GameWorld {
         domains = new LinkedHashMap<>();
         
         // REGULAR REALM DOMAINS (20 domains)
-        domains.put("Central Domain", new Domain("Central Domain", "Regular",
+        domains.put("Central Scene.Domain", new Domain("Central Scene.Domain", "Regular",
             "Starting area with basic facilities and safety",
-            List.of("Town Square", "Blacksmith", "Magic Shop", "Quest Hall", "Armory", "Prestige Hall", "Stable", "Hospital", "Market", "Inn"),
+            List.of("Town Square", "Blacksmith", "Magic Shop", "Quests.Quest Hall", "Armory", "Prestige Hall", "Stable", "Hospital", "Market", "Inn"),
             "Central Guardian",
             List.of("Basic Gear Shop", "Potion Emporium", "Starter Equipment")));
             
-        domains.put("Forest Domain", new Domain("Forest Domain", "Regular",
+        domains.put("Forest Scene.Domain", new Domain("Forest Scene.Domain", "Regular",
             "Lush forests with nature magic and ancient secrets",
             List.of("Forest Entrance", "Ancient Grove", "Treant Village", "Hidden Glade", "Forest Temple", "Druid Circle", "Mystic Falls"),
             "Forest Titan",
             List.of("Nature's Arsenal", "Druid Supplies", "Herbal Medicine")));
             
-        domains.put("Mountain Domain", new Domain("Mountain Domain", "Regular",
+        domains.put("Mountain Scene.Domain", new Domain("Mountain Scene.Domain", "Regular",
             "High peaks and rocky terrain with dwarven settlements",
             List.of("Mountain Base", "Rocky Cliffs", "Peak Summit", "Dragon's Lair", "Crystal Caves", "Dwarven Halls", "Sky Bridge"),
             "Mountain King",
             List.of("Peak Armory", "Crystal Forge", "Dwarven Smithy")));
             
-        domains.put("Desert Domain", new Domain("Desert Domain", "Regular",
+        domains.put("Desert Scene.Domain", new Domain("Desert Scene.Domain", "Regular",
             "Scorching sands with ancient ruins and nomadic tribes",
             List.of("Oasis Town", "Sand Dunes", "Ancient Pyramid", "Mirage Valley", "Buried Temple", "Nomad Camp", "Sphinx Lair"),
             "Sand Pharaoh",
             List.of("Desert Trader", "Mirage Market", "Nomad Supplies")));
             
-        domains.put("Swamp Domain", new Domain("Swamp Domain", "Regular",
+        domains.put("Swamp Scene.Domain", new Domain("Swamp Scene.Domain", "Regular",
             "Murky wetlands with toxic atmosphere and dark magic",
             List.of("Swamp Village", "Poison Marshes", "Witch's Hut", "Bog Depths", "Crocodile Lair", "Cursed Grove", "Alchemist Lab"),
             "Swamp Lord",
             List.of("Toxic Weaponry", "Marsh Medicine", "Poison Crafts")));
             
-        domains.put("Ice Domain", new Domain("Ice Domain", "Regular",
+        domains.put("Ice Scene.Domain", new Domain("Ice Scene.Domain", "Regular",
             "Frozen wasteland with ice magic and eternal winter",
             List.of("Frozen Village", "Ice Caverns", "Glacier Plains", "Aurora Peak", "Ice Palace", "Yeti Caves", "Frost Temple"),
             "Frost Emperor",
             List.of("Frost Forge", "Arctic Outfitters", "Ice Crystal Shop")));
             
-        domains.put("Volcano Domain", new Domain("Volcano Domain", "Regular",
+        domains.put("Volcano Scene.Domain", new Domain("Volcano Scene.Domain", "Regular",
             "Fiery peaks with lava flows and forge masters",
             List.of("Lava Village", "Magma Chambers", "Volcano Crater", "Fire Temple", "Molten Core", "Phoenix Nest", "Forge of Kings"),
             "Magma King",
             List.of("Inferno Weapons", "Fire Forge", "Molten Crafts")));
             
-        domains.put("Ocean Domain", new Domain("Ocean Domain", "Regular",
+        domains.put("Ocean Scene.Domain", new Domain("Ocean Scene.Domain", "Regular",
             "Vast seas with underwater cities and sea creatures",
-            List.of("Port Town", "Coral Reef", "Underwater City", "Deep Trench", "Kraken's Domain", "Mermaid Palace", "Pirate Cove"),
+            List.of("Port Town", "Coral Reef", "Underwater City", "Deep Trench", "Kraken's Scene.Domain", "Mermaid Palace", "Pirate Cove"),
             "Sea Emperor",
             List.of("Nautical Gear", "Pearl Merchant", "Sea Treasures")));
             
-        domains.put("Sky Domain", new Domain("Sky Domain", "Regular",
+        domains.put("Sky Scene.Domain", new Domain("Sky Scene.Domain", "Regular",
             "Floating islands in the clouds with wind magic",
             List.of("Cloud Village", "Wind Temple", "Sky Bridge", "Storm Citadel", "Heaven's Gate", "Eagle's Nest", "Star Observatory"),
             "Storm Lord",
             List.of("Wind Walker Gear", "Cloud Forge", "Sky Crystals")));
             
-        domains.put("Underground Domain", new Domain("Underground Domain", "Regular",
+        domains.put("Underground Scene.Domain", new Domain("Underground Scene.Domain", "Regular",
             "Deep caverns and mining tunnels with earth magic",
             List.of("Mining Town", "Crystal Caverns", "Underground Lake", "Dwarven Halls", "Deep Core", "Gem Mines", "Earth Temple"),
             "Earth Titan",
             List.of("Dwarven Smith", "Gem Cutter", "Earth Forge")));
             
-        domains.put("Shadow Domain", new Domain("Shadow Domain", "Regular",
+        domains.put("Shadow Scene.Domain", new Domain("Shadow Scene.Domain", "Regular",
             "Dark realm of shadows with stealth and void magic",
             List.of("Shadow Village", "Dark Forest", "Void Temple", "Shadow Maze", "Darkness Core", "Assassin Guild", "Nightmare Realm"),
             "Shadow Master",
             List.of("Shadow Weapons", "Void Arsenal", "Dark Arts Shop")));
             
-        domains.put("Light Domain", new Domain("Light Domain", "Regular",
+        domains.put("Light Scene.Domain", new Domain("Light Scene.Domain", "Regular",
             "Radiant realm of holy magic and divine power",
             List.of("Temple City", "Sacred Grove", "Light Spire", "Angel Sanctuary", "Divine Throne", "Holy Cathedral", "Paladin Hall"),
             "Light Seraph",
             List.of("Holy Armaments", "Divine Forge", "Sacred Relics")));
             
-        domains.put("Time Domain", new Domain("Time Domain", "Regular",
+        domains.put("Time Scene.Domain", new Domain("Time Scene.Domain", "Regular",
             "Temporal magic and time manipulation mysteries",
             List.of("Clockwork City", "Past Ruins", "Future Lab", "Time Vortex", "Temporal Core", "Chrono Tower", "Paradox Chamber"),
             "Chrono Master",
             List.of("Temporal Weapons", "Time Forge", "Paradox Shop")));
             
-        domains.put("Space Domain", new Domain("Space Domain", "Regular",
+        domains.put("Space Scene.Domain", new Domain("Space Scene.Domain", "Regular",
             "Cosmic void with stellar magic and alien mysteries",
             List.of("Space Station", "Asteroid Field", "Nebula Garden", "Black Hole", "Cosmic Center", "Star Forge", "Alien Outpost"),
             "Void Emperor",
             List.of("Cosmic Arsenal", "Star Forge", "Alien Technology")));
             
-        domains.put("Dream Domain", new Domain("Dream Domain", "Regular",
+        domains.put("Dream Scene.Domain", new Domain("Dream Scene.Domain", "Regular",
             "Surreal dreamscape with illusion magic and mind games",
             List.of("Dream Village", "Nightmare Forest", "Lucid Lake", "Surreal City", "Dream Core", "Memory Palace", "Inception Chamber"),
             "Dream Weaver",
             List.of("Illusion Gear", "Dream Forge", "Mind Crystals")));
             
-        domains.put("Ancient Domain", new Domain("Ancient Domain", "Regular",
+        domains.put("Ancient Scene.Domain", new Domain("Ancient Scene.Domain", "Regular",
             "Ruins of lost civilizations with archaeological treasures",
             List.of("Ruined City", "Ancient Library", "Lost Temple", "Forgotten Tomb", "Primordial Core", "Archaeology Site", "Relic Vault"),
             "Ancient Guardian",
             List.of("Relic Weapons", "Ancient Forge", "Archaeological Tools")));
             
-        domains.put("Beast Domain", new Domain("Beast Domain", "Regular",
+        domains.put("Beast Scene.Domain", new Domain("Beast Scene.Domain", "Regular",
             "Wild lands ruled by magical creatures and nature spirits",
             List.of("Beast Village", "Wild Plains", "Creature Den", "Alpha Territory", "Primal Core", "Tamer's Lodge", "Spirit Grove"),
             "Beast King",
             List.of("Beast Gear", "Fang & Claw", "Tamer Supplies")));
             
-        domains.put("Elemental Domain", new Domain("Elemental Domain", "Regular",
+        domains.put("Elemental Scene.Domain", new Domain("Elemental Scene.Domain", "Regular",
             "Pure elemental forces in perfect harmony",
             List.of("Elemental Nexus", "Fire Quarter", "Water Quarter", "Earth Quarter", "Air Quarter", "Spirit Quarter", "Balance Chamber"),
             "Elemental Avatar",
             List.of("Elemental Forge", "Essence Shop", "Pure Elements")));
             
-        domains.put("Chaos Domain", new Domain("Chaos Domain", "Regular",
+        domains.put("Chaos Scene.Domain", new Domain("Chaos Scene.Domain", "Regular",
             "Unstable realm of pure chaos and random events",
             List.of("Chaos Village", "Random Plains", "Unstable Void", "Madness Peak", "Chaos Core", "Probability Lab", "Entropy Gate"),
             "Chaos Lord",
             List.of("Chaos Weapons", "Random Forge", "Uncertainty Shop")));
             
-        domains.put("Order Domain", new Domain("Order Domain", "Regular",
+        domains.put("Order Scene.Domain", new Domain("Order Scene.Domain", "Regular",
             "Perfect realm of law, structure, and absolute order",
             List.of("Order City", "Law Temple", "Perfect Gardens", "Justice Hall", "Order Core", "Logic Center", "Harmony Plaza"),
             "Order Master",
             List.of("Law Weapons", "Order Forge", "Perfect Equipment")));
             
         // MYTHIC REALM DOMAINS (8 domains)
-        domains.put("Eternal Domain", new Domain("Eternal Domain", "Mythic",
+        domains.put("Eternal Scene.Domain", new Domain("Eternal Scene.Domain", "Mythic",
             "Timeless realm of immortal beings beyond mortal comprehension",
             List.of("Eternal Citadel", "Immortal Gardens", "Ageless Library", "Forever Falls", "Eternity Core", "Timeless Spire", "Infinity Pool"),
             "Eternal Emperor",
             List.of("Immortal Forge", "Eternal Arsenal", "Timeless Crafts")));
             
-        domains.put("Cosmic Domain", new Domain("Cosmic Domain", "Mythic",
+        domains.put("Cosmic Scene.Domain", new Domain("Cosmic Scene.Domain", "Mythic",
             "Universe-spanning powers and galactic civilizations",
             List.of("Galaxy Center", "Star Nursery", "Cosmic Web", "Universal Core", "Reality Nexus", "Dimension Gate", "Multiverse Hub"),
             "Cosmic Entity",
             List.of("Universe Forge", "Cosmic Workshop", "Reality Crafts")));
             
-        domains.put("Divine Domain", new Domain("Divine Domain", "Mythic",
+        domains.put("Divine Scene.Domain", new Domain("Divine Scene.Domain", "Mythic",
             "Realm of gods with ultimate divine power",
             List.of("Divine Palace", "God's Throne", "Heaven's Armory", "Celestial Court", "Divine Core", "Sacred Mountain", "Holy Sanctum"),
             "God Emperor",
             List.of("Divine Workshop", "God Forge", "Celestial Arsenal")));
             
-        domains.put("Infernal Domain", new Domain("Infernal Domain", "Mythic",
+        domains.put("Infernal Scene.Domain", new Domain("Infernal Scene.Domain", "Mythic",
             "Hellish realm of demons, devils, and eternal torment",
             List.of("Hell Gate", "Demon City", "Torture Chambers", "Devil's Throne", "Infernal Core", "Brimstone Forges", "Damnation Pit"),
             "Devil Emperor",
             List.of("Hellish Forge", "Demon Arsenal", "Infernal Crafts")));
             
-        domains.put("Void Domain", new Domain("Void Domain", "Mythic",
+        domains.put("Void Scene.Domain", new Domain("Void Scene.Domain", "Mythic",
             "Emptiness between realities where nothing exists",
             List.of("Void Center", "Nothing Plains", "Reality Tears", "Existence Edge", "Void Core", "Null Chamber", "Absence Shrine"),
             "Void Lord",
             List.of("Void Forge", "Nothingness Shop", "Null Crafts")));
             
-        domains.put("Creation Domain", new Domain("Creation Domain", "Mythic",
+        domains.put("Creation Scene.Domain", new Domain("Creation Scene.Domain", "Mythic",
             "Origin point of all existence and creative force",
             List.of("Genesis Point", "First Light", "Original Word", "Creator's Workshop", "Creation Core", "Birth Chamber", "Origin Fountain"),
             "Creator God",
             List.of("Genesis Forge", "Origin Workshop", "Creation Tools")));
             
-        domains.put("Destruction Domain", new Domain("Destruction Domain", "Mythic",
+        domains.put("Destruction Scene.Domain", new Domain("Destruction Scene.Domain", "Mythic",
             "End of all things and ultimate entropy",
             List.of("Apocalypse Gate", "Final Hour", "Last Breath", "Ending Point", "Destruction Core", "Entropy Engine", "Annihilation Chamber"),
             "Destroyer",
             List.of("Apocalypse Forge", "End Shop", "Destruction Tools")));
             
-        domains.put("Origin Domain", new Domain("Origin Domain", "Mythic",
+        domains.put("Origin Scene.Domain", new Domain("Origin Scene.Domain", "Mythic",
             "Source of the mythic gate system and reality itself",
             List.of("Gate of Origins", "Portal Nexus", "Mythic Source", "Reality Anchor", "Origin Core", "Gate Matrix", "Source Chamber"),
             "Gate Master",
@@ -203,7 +210,7 @@ class GameWorld {
     private void initializeConnections() {
         locationConnections = new HashMap<>();
         
-        // Central Domain connections to other realms
+        // Central Scene.Domain connections to other realms
         addConnection("Town Square", List.of("Forest Entrance", "Mountain Base", "Oasis Town", "Mythic Gate"));
         
         // Regular domain connections (each connects to nearby domains)
@@ -384,7 +391,7 @@ class GameWorld {
         
         System.out.printf("\nArrived at %s!\n", destination);
         
-        // Domain change announcement
+        // Scene.Domain change announcement
         if (!oldDomain.equals(newDomain)) {
             System.out.printf("*** ENTERED %s ***\n", newDomain.toUpperCase());
             Domain domain = domains.get(newDomain);
@@ -414,7 +421,7 @@ class GameWorld {
             case "Hell Gate" -> handleHellGate(player);
         }
         
-        // Domain boss encounters (5% chance)
+        // Scene.Domain boss encounters (5% chance)
         if (ThreadLocalRandom.current().nextDouble() < 0.05) {
             Domain currentDomain = domains.get(domain);
             if (currentDomain != null && currentDomain.getDomainBoss() != null) {
@@ -434,7 +441,7 @@ class GameWorld {
         
         if (ThreadLocalRandom.current().nextDouble() < 0.6) {
             System.out.println("A mighty dragon emerges from the shadows!");
-            Enemy dragon = EnemyFactory.createDomainBoss("Mountain Domain", player.getLevel());
+            Enemy dragon = EnemyFactory.createDomainBoss("Mountain Scene.Domain", player.getLevel());
             dragon.setElement("fire");
             dragon.addSpecialAbility("Dragon Breath");
             dragon.addSpecialAbility("Wing Buffet");
@@ -587,14 +594,14 @@ class GameWorld {
     
     private String getElementForDomain(String domain) {
         return switch (domain) {
-            case "Fire Domain", "Volcano Domain" -> "Fire";
-            case "Ice Domain" -> "Ice";
-            case "Shadow Domain" -> "Shadow";
-            case "Light Domain" -> "Light";
-            case "Forest Domain" -> "Nature";
-            case "Mountain Domain" -> "Earth";
-            case "Ocean Domain" -> "Water";
-            case "Sky Domain" -> "Air";
+            case "Fire Scene.Domain", "Volcano Scene.Domain" -> "Fire";
+            case "Ice Scene.Domain" -> "Ice";
+            case "Shadow Scene.Domain" -> "Shadow";
+            case "Light Scene.Domain" -> "Light";
+            case "Forest Scene.Domain" -> "Nature";
+            case "Mountain Scene.Domain" -> "Earth";
+            case "Ocean Scene.Domain" -> "Water";
+            case "Sky Scene.Domain" -> "Air";
             default -> "Neutral";
         };
     }
@@ -654,34 +661,4 @@ class GameWorld {
     // Getters
     public Map<String, Domain> getDomains() { return domains; }
     public Domain getDomain(String name) { return domains.get(name); }
-}
-
-/**
- * Domain class representing each game area
- */
-class Domain {
-    private String name;
-    private String realm; // Regular or Mythic
-    private String description;
-    private List<String> locations;
-    private String domainBoss;
-    private List<String> specialShops;
-    
-    public Domain(String name, String realm, String description, List<String> locations, 
-                  String domainBoss, List<String> specialShops) {
-        this.name = name;
-        this.realm = realm;
-        this.description = description;
-        this.locations = new ArrayList<>(locations);
-        this.domainBoss = domainBoss;
-        this.specialShops = new ArrayList<>(specialShops);
-    }
-    
-    // Getters
-    public String getName() { return name; }
-    public String getRealm() { return realm; }
-    public String getDescription() { return description; }
-    public List<String> getLocations() { return locations; }
-    public String getDomainBoss() { return domainBoss; }
-    public List<String> getSpecialShops() { return specialShops; }
 }

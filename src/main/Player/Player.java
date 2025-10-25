@@ -1,73 +1,26 @@
+package Player;
+
+
+import Items.Item;
+
 import java.util.*;
 
-public static class Location {
-    private final String name;
-    public Location(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
 
-public static class Domain {
-    private final String name;
-    public Domain(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
-
-public static class Weapon {
-    private final String name;
-    public Weapon() { this.name = ""; }
-    public Weapon(String name) { this.name = name; }
-    public String getName() { return name; }
-}
-
-public static class Armor {
-    private final String name;
-    public Armor() { this.name = ""; }
-    public Armor(String name) { this.name = name; }
-    public String getName() { return name; }
-}
-
-public static class Companion {
-    private final String name;
-    public Companion(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
-
-public static class Horse {
-    private final String name;
-    public Horse(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
-
-public static class Faction {
-    private final String name;
-    public Faction(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
-
-public static class StatusEffects {
-    private final String name;
-    public StatusEffects(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
-
-public static class StartQuest {
-    private final String name;
-    public StartQuest(String _name) { this.name = _name; }
-    public String getName() { return name; }
-}
-
-public static class Player {
+public class Player {
     Map<String, Object> currentQuest;
     List<Map<String, Object>> npcQuests;
     String name;
-    double hp;
-    double maxHp;
-    double mana;
-    double maxMana;
+    int hp;
+    int maxHp;
+    int mana;
+    int maxMana;
+	int stamina;
+	int maxStamina;
     int gold;
     int exp;
     int level;
     int prestige;
+	int reputation;
     Location location;
     Domain currentDomain;
     List<Map<String, Object>> inventory;
@@ -87,14 +40,17 @@ public static class Player {
         currentQuest = null;
         npcQuests = new ArrayList<>();
         name = _name;
-        hp = 100.0;
-        maxHp = 100.0;
-        mana = 50.0;
-        maxMana = 50.0;
+        hp = 100;
+        maxHp = 100;
+        mana = 50;
+        maxMana = 50;
+	    stamina = 100;
+	    maxStamina = 100;
         gold = 0;
         exp = 0;
         level = 1;
         prestige = 0;
+		reputation = 0;
         location = new Location("Town Square");
         currentDomain = new Domain("Central Domain");
         inventory = new ArrayList<>();
@@ -243,17 +199,16 @@ public static class Player {
             return false;
         }
         Object nameObj = currentQuest.get("name");
-        if (!(nameObj instanceof String)) {
+        if (!(nameObj instanceof String questName)) {
             System.out.println("Invalid current quest data.");
             currentQuest = null;
             return false;
         }
-        String questName = (String) nameObj;
-        if (!questName.equals(defeatedEnemyName)) {
+	    if (!questName.equals(defeatedEnemyName)) {
             System.out.println("You have not defeated the required enemy: " + questName);
             return false;
         }
-        System.out.println("*** Quest Completed: You defeated the " + questName + "! ***");
+        System.out.println("*** Quests.Quest Completed: You defeated the " + questName + "! ***");
         int bonusExp = ((Number) currentQuest.getOrDefault("exp", 0)).intValue();
         int bonusGold = ((Number) currentQuest.getOrDefault("gold", 0)).intValue();
         Map<String, Object> bonusItem = randomRewardItem();
@@ -269,7 +224,7 @@ public static class Player {
         List<Map<String, Object>> pool = List.of(
             Map.of("name", "Small Health Potion", "type", "consumable", "heal", 50),
             Map.of("name", "Iron Sword", "type", "weapon", "power", 5),
-            Map.of("name", "Leather Armor", "type", "armor", "defense", 3),
+            Map.of("name", "Leather Items.Armor", "type", "armor", "defense", 3),
             Map.of("name", "Mana Elixir", "type", "consumable", "mana", 30)
         );
         return pool.get(random.nextInt(pool.size()));
@@ -292,7 +247,7 @@ public static class Player {
         newQuest.put("reward", questData.get("reward"));
         newQuest.put("description", questData.get("description"));
         npcQuests.add(newQuest);
-        System.out.println("Quest accepted from " + npcName + ": " + questData.get("description"));
+        System.out.println("Quests.Quest accepted from " + npcName + ": " + questData.get("description"));
         return true;
     }
 
@@ -304,9 +259,8 @@ public static class Player {
             int quantity = ((Number) quest.getOrDefault("quantity", 1)).intValue();
             int progress = ((Number) quest.getOrDefault("progress", 0)).intValue();
             if (!type.equals(questType)) continue;
-            boolean match = false;
-            if ("find_item".equals(type) && target != null && target.equals(qTarget)) match = true;
-            if ("defeat_enemy".equals(type) && target != null && target.equals(qTarget)) match = true;
+            boolean match = "find_item".equals(type) && target != null && target.equals(qTarget);
+	        if ("defeat_enemy".equals(type) && target != null && target.equals(qTarget)) match = true;
             if ("deliver_item".equals(type) && target != null && target.equals(qTarget)) match = true;
             if (match) {
                 progress += 1;
@@ -318,11 +272,10 @@ public static class Player {
     }
 
     public void completeNpcQuest(Map<String, Object> quest) {
-        System.out.println("*** NPC Quest Completed for " + quest.get("npc") + "! ***");
+        System.out.println("*** NPC Quests.Quest Completed for " + quest.get("npc") + "! ***");
         Object rewardObj = quest.get("reward");
-        if (rewardObj instanceof Map) {
-            Map<?, ?> reward = (Map<?, ?>) rewardObj;
-            if (reward.containsKey("gold")) {
+        if (rewardObj instanceof Map<?, ?> reward) {
+	        if (reward.containsKey("gold")) {
                 int g = ((Number) reward.get("gold")).intValue();
                 gold += g;
                 System.out.println("You received " + g + " gold!");
@@ -374,25 +327,76 @@ public static class Player {
         System.out.println(companion.getName() + " has joined you.");
         return true;
     }
-}
-
-public static void main(String[] args) {
-    Player p = new Player("Devin");
-    p.faction = new Faction("Knights of the Phoenix");
-    p.weapon = Map.of("power", 12);
-    p.armor = Map.of("defense", 8);
-    p.startQuest();
-    p.gainExp(1200);
-    p.addCompanion(new Companion("Luna"));
-    Map<String, Object> questData = new HashMap<>();
-    questData.put("type", "find_item");
-    questData.put("target", "Ancient Coin");
-    questData.put("quantity", 2);
-    questData.put("reward", Map.of("gold", 100, "exp", 200));
-    questData.put("description", "Find two Ancient Coins.");
-    p.acceptNpcQuest("Merchant", questData);
-    p.inventory.add(Map.of("name", "Ancient Coin"));
-    p.checkNpcQuestItems();
-    p.inventory.add(Map.of("name", "Ancient Coin"));
-    p.checkNpcQuestItems();
+	
+	public void addToInventory(Item item) {
+	
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public Location getLocation() {
+		return location;
+	}
+	
+	public Domain getCurrentDomain() {
+		return currentDomain;
+	}
+	
+	public int getHp() {
+		return hp;
+	}
+	
+	public int getMaxHp() {
+		return maxHp;
+	}
+	
+	public int getMana() {
+		return mana;
+	}
+	
+	public int getMaxMana() {
+		return maxMana;
+	}
+	
+	public int getStamina() {
+		return stamina;
+	}
+	
+	public int getMaxStamina() {
+		return maxStamina;
+	}
+	
+	public int getGold() {
+		return gold;
+	}
+	
+	public int getLevel() {
+		return level;
+	}
+	
+	public int getPrestige() {
+		return prestige;
+	}
+	
+	public int getExp() {
+		return exp;
+	}
+	
+	public Horse getHorse() {
+		return horse;
+	}
+	
+	public Faction getFaction() {
+		return faction;
+	}
+	
+	public int getReputation() {
+		return reputation;
+	}
+	
+	public List<StatusEffects> getStatusEffects() {
+		return statusEffects;
+	}
 }

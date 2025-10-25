@@ -1,10 +1,11 @@
-// ================================================================================
-// ITEM FACTORY - Should be in ItemFactory.java
+package Items;// ================================================================================
+// ITEM FACTORY - Should be in Items.ItemFactory.java
 // Creates all items with proper configuration
 // ================================================================================
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-class ItemFactory {
+public class ItemFactory {
     private static Map<String, String[]> weaponsByElement;
     private static Map<String, String[]> armorByType;
     private static boolean initialized = false;
@@ -30,9 +31,9 @@ class ItemFactory {
     
     private static void setupArmorData() {
         armorByType = new HashMap<>();
-        armorByType.put("Light", new String[]{"Leather Vest", "Scout Armor", "Assassin Garb", "Ranger Cloak", "Thief Suit"});
-        armorByType.put("Medium", new String[]{"Chain Mail", "Scale Armor", "Reinforced Vest", "Battle Garb", "War Cloak"});
-        armorByType.put("Heavy", new String[]{"Plate Armor", "Full Plate", "Knight Armor", "Guardian Plate", "Fortress Mail"});
+        armorByType.put("Light", new String[]{"Leather Vest", "Scout Items.Armor", "Assassin Garb", "Ranger Cloak", "Thief Suit"});
+        armorByType.put("Medium", new String[]{"Chain Mail", "Scale Items.Armor", "Reinforced Vest", "Battle Garb", "War Cloak"});
+        armorByType.put("Heavy", new String[]{"Plate Items.Armor", "Full Plate", "Knight Items.Armor", "Guardian Plate", "Fortress Mail"});
     }
     
     /**
