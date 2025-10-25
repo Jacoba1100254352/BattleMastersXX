@@ -2,9 +2,24 @@
 // MAIN GAME CLASS - Should be in Main.java
 // Contains the main game loop and initialization
 // ================================================================================
+import Achievements.AchievementSystem;
+import Combat.CombatSystem;
+import Combat.SpellSystem;
+import Enemy.Enemy;
+import Enemy.EnemyFactory;
+import Factions.FactionSystem;
+import Items.Item;
+import Items.ItemFactory;
+import Prestige.PrestigeSystem;
+import Quests.WanderingMerchant;
+import Scene.GameWorld;
+import Player.Player;
+import Scene.TimeWeatherSystem;
+
 import java.util.*;
-public class BattleMasterXX {
-    private static Scanner scanner = new Scanner(System.in);
+
+public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
     private static Player player;
     private static GameWorld gameWorld;
     private static TimeWeatherSystem timeWeather;
@@ -17,6 +32,27 @@ public class BattleMasterXX {
         initializeGame();
         gameLoop();
     }
+	
+/*	public static void main(String[] args) {
+		Player p = new Player("Devin");
+		p.faction = new Faction("Knights of the Phoenix");
+		p.weapon = Map.of("power", 12);
+		p.armor = Map.of("defense", 8);
+		p.startQuest();
+		p.gainExp(1200);
+		p.addCompanion(new Companion("Luna"));
+		Map<String, Object> questData = new HashMap<>();
+		questData.put("type", "find_item");
+		questData.put("target", "Ancient Coin");
+		questData.put("quantity", 2);
+		questData.put("reward", Map.of("gold", 100, "exp", 200));
+		questData.put("description", "Find two Ancient Coins.");
+		p.acceptNpcQuest("Merchant", questData);
+		p.inventory.add(Map.of("name", "Ancient Coin"));
+		p.checkNpcQuestItems();
+		p.inventory.add(Map.of("name", "Ancient Coin"));
+		p.checkNpcQuestItems();
+	}*/
     
     /**
      * Initialize all game systems and create the player
@@ -37,7 +73,7 @@ public class BattleMasterXX {
         AchievementSystem.initialize();
         PrestigeSystem.initialize();
         
-        System.out.println("\n" + playerName + ", your adventure begins in the Central Domain!");
+        System.out.println("\n" + playerName + ", your adventure begins in the Central Scene.Domain!");
         System.out.println("Type 'help' at any time to see available commands.");
         
         // Give starting items
@@ -62,9 +98,9 @@ public class BattleMasterXX {
             processRandomEvents();
             
             // Auto-save every 10 actions
-            if (timeWeather.getTotalHours() % 10 == 0) {
+/*            if (timeWeather.getTotalHours() % 10 == 0) {
                 SaveSystem.autoSave(player, gameWorld, timeWeather);
-            }
+            }*/
         }
         
         System.out.println("\n=== GAME OVER ===");
@@ -78,10 +114,10 @@ public class BattleMasterXX {
     private static void displayGameStatus() {
         System.out.println("\n" + "=".repeat(80));
         System.out.printf("║ %s - %s (%s)%n", 
-            player.getName(), player.getLocation(), player.getCurrentDomain());
-        System.out.printf("║ HP: %d/%d | Mana: %d/%d | Stamina: %d/%d | Gold: %d%n", 
-            player.getHp(), player.getMaxHp(), player.getMana(), player.getMaxMana(),
-            player.getStamina(), player.getMaxStamina(), player.getGold());
+            player.getName(), player.getLocation().toString(), player.getCurrentDomain());
+	    System.out.printf("║ HP: %d/%d | Mana: %d/%d | Stamina: %d/%d | Gold: %d%n",
+	                      player.getHp(), player.getMaxHp(), player.getMana(), player.getMaxMana(),
+	                      player.getStamina(), player.getMaxStamina(), player.getGold());
         System.out.printf("║ Level: %d | Prestige: %d | XP: %d/%d%n", 
             player.getLevel(), player.getPrestige(), player.getExp(), player.getLevel() * 100);
         System.out.printf("║ Time: %s | Weather: %s%n", 
@@ -112,7 +148,7 @@ public class BattleMasterXX {
     private static void displayMainMenu() {
         System.out.println("\n┌─── MAIN MENU ───────────────────────────────────────────────┐");
         System.out.println("│ 1.Move/Travel    2.Explore Area     3.Inventory    4.Equipment │");
-        System.out.println("│ 5.Use Item       6.Magic/Spells     7.Companions   8.Quests     │");
+        System.out.println("│ 5.Use Items.Item       6.Magic/Spells     7.Companions   8.Quests     │");
         System.out.println("│ 9.Talk to NPCs   10.Shop           11.Faction     12.Prestige   │");
         System.out.println("│ 13.Skills        14.Achievements   15.Crafting    16.Map        │");
         System.out.println("│ 17.Statistics    18.Settings       19.Save/Load   20.Help       │");
@@ -307,7 +343,7 @@ public class BattleMasterXX {
     }
     
     private static boolean isInDangerousArea() {
-        return !player.getCurrentDomain().equals("Central Domain") && 
+        return !player.getCurrentDomain().equals("Central Scene.Domain") &&
                !player.getLocation().contains("Village") && 
                !player.getLocation().contains("Town") &&
                !player.getLocation().contains("Safe");
