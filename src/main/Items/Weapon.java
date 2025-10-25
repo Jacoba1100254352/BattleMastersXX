@@ -1,27 +1,24 @@
 package Items;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
- * Enhanced Items.Weapon class with elemental damage and special effects
+ * Enhanced weapon class with elemental damage and special effects.
  */
-class Weapon extends Item
-{
-	private int power;
-	private String element;
-	private Map<String, Integer> bonuses;
-	private List<String> specialEffects;
+public class Weapon extends Item {
+	private final int power;
+	private final String element;
+	private final Map<String, Integer> bonuses;
+	private final List<String> specialEffects;
 	private int durability;
-	private int maxDurability;
+	private final int maxDurability;
 	private double criticalChance;
 	
 	public Weapon(String name, int power, String element, int weight) {
-		super(name, String.format("A %s weapon with %d power", element, power), "Items.Weapon", power * 12, weight);
+		super(name, String.format("A %s weapon with %d power", element, power), "Weapon", power * 12, weight);
 		this.power = power;
 		this.element = element;
 		this.bonuses = new HashMap<>();
@@ -32,7 +29,7 @@ class Weapon extends Item
 	}
 	
 	/**
-	 * Use weapon and reduce durability
+	 * Use weapon and reduce durability.
 	 */
 	public void use() {
 		if (durability > 0) {
@@ -46,7 +43,7 @@ class Weapon extends Item
 	}
 	
 	/**
-	 * Repair weapon
+	 * Repair weapon.
 	 */
 	public void repair(int amount) {
 		durability = Math.min(maxDurability, durability + amount);
@@ -54,7 +51,7 @@ class Weapon extends Item
 	}
 	
 	/**
-	 * Get effective power based on durability
+	 * Get effective power based on durability.
 	 */
 	public int getEffectivePower() {
 		if (durability == 0) return 0;
@@ -62,23 +59,23 @@ class Weapon extends Item
 	}
 	
 	// Getters and setters
-	public int getPower() {return power;}
+	public int getPower() { return power; }
 	
-	public String getElement() {return element;}
+	public String getElement() { return element; }
 	
-	public Map<String, Integer> getBonuses() {return bonuses;}
+	public Map<String, Integer> getBonuses() { return bonuses; }
 	
-	public List<String> getSpecialEffects() {return specialEffects;}
+	public List<String> getSpecialEffects() { return specialEffects; }
 	
-	public int getDurability() {return durability;}
+	public int getDurability() { return durability; }
 	
-	public int getMaxDurability() {return maxDurability;}
+	public int getMaxDurability() { return maxDurability; }
 	
-	public double getCriticalChance() {return criticalChance;}
+	public double getCriticalChance() { return criticalChance; }
 	
-	public void addBonus(String stat, int amount) {bonuses.put(stat, bonuses.getOrDefault(stat, 0) + amount);}
+	public void addBonus(String stat, int amount) { bonuses.put(stat, bonuses.getOrDefault(stat, 0) + amount); }
 	
-	public void addSpecialEffect(String effect) {specialEffects.add(effect);}
+	public void addSpecialEffect(String effect) { specialEffects.add(effect); }
 	
-	public void setCriticalChance(double chance) {this.criticalChance = chance;}
+	public void setCriticalChance(double chance) { this.criticalChance = chance; }
 }

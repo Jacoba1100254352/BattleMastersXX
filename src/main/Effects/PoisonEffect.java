@@ -1,14 +1,12 @@
 package Effects;
 
-
 import Enemy.Enemy;
-
+import Player.Player;
 
 /**
- * Poison effect for damage over time
+ * Poison effect for damage over time.
  */
-class PoisonEffect extends StatusEffect
-{
+public class PoisonEffect extends StatusEffect {
 	public PoisonEffect(int duration, int damagePerTurn) {
 		super("Poison", duration, damagePerTurn, false);
 	}

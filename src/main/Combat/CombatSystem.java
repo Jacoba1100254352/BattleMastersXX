@@ -1,17 +1,20 @@
 package Combat;
 
-
+import Achievements.AchievementSystem;
 import Effects.PoisonEffect;
 import Effects.StatusEffect;
 import Enemy.Enemy;
 import Enemy.EnemyAction;
 import Items.Consumable;
 import Items.Item;
+import Player.Companion;
+import Player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**

@@ -1,15 +1,14 @@
 package Enemy;
 
-
 /**
- * Enemy.Enemy action class for AI decisions
+ * Enemy action class for AI decisions.
  */
-class EnemyAction {
-	private String actionType;
-	private int damage;
-	private String message;
-	private String element;
-	private String statusEffect;
+public class EnemyAction {
+	private final String actionType;
+	private final int damage;
+	private final String message;
+	private final String element;
+	private final String statusEffect;
 	
 	public EnemyAction(String actionType, int damage, String message) {
 		this(actionType, damage, message, "physical", null);

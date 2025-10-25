@@ -1,25 +1,22 @@
 package Items;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * Enhanced Items.Armor class with set bonuses and durability
+ * Enhanced armor class with set bonuses and durability.
  */
-class Armor extends Item
-{
-	private int defense;
-	private Map<String, Integer> resistances;
-	private Map<String, Integer> bonuses;
-	private String armorType; // Light, Medium, Heavy
+public class Armor extends Item {
+	private final int defense;
+	private final Map<String, Integer> resistances;
+	private final Map<String, Integer> bonuses;
+	private final String armorType; // Light, Medium, Heavy
 	private int durability;
-	private int maxDurability;
+	private final int maxDurability;
 	private String setName; // For set bonuses
 	
 	public Armor(String name, int defense, String armorType, int weight) {
-		super(name, String.format("%s armor providing %d defense", armorType, defense), "Items.Armor", defense * 10, weight);
+		super(name, String.format("%s armor providing %d defense", armorType, defense), "Armor", defense * 10, weight);
 		this.defense = defense;
 		this.armorType = armorType;
 		this.resistances = new HashMap<>();
@@ -29,7 +26,7 @@ class Armor extends Item
 	}
 	
 	/**
-	 * Take damage and reduce durability
+	 * Take damage and reduce durability.
 	 */
 	public void takeDamage(int damage) {
 		int durabilityLoss = Math.max(1, damage / 10);
@@ -43,7 +40,7 @@ class Armor extends Item
 	}
 	
 	/**
-	 * Get effective defense based on durability
+	 * Get effective defense based on durability.
 	 */
 	public int getEffectiveDefense() {
 		if (durability == 0) return 0;
@@ -51,25 +48,25 @@ class Armor extends Item
 	}
 	
 	// Getters and setters
-	public int getDefense() {return defense;}
+	public int getDefense() { return defense; }
 	
-	public Map<String, Integer> getResistances() {return resistances;}
+	public Map<String, Integer> getResistances() { return resistances; }
 	
-	public Map<String, Integer> getBonuses() {return bonuses;}
+	public Map<String, Integer> getBonuses() { return bonuses; }
 	
-	public String getArmorType() {return armorType;}
+	public String getArmorType() { return armorType; }
 	
-	public int getDurability() {return durability;}
+	public int getDurability() { return durability; }
 	
-	public int getMaxDurability() {return maxDurability;}
+	public int getMaxDurability() { return maxDurability; }
 	
-	public String getSetName() {return setName;}
+	public String getSetName() { return setName; }
 	
-	public void addResistance(String element, int amount) {resistances.put(element, resistances.getOrDefault(element, 0) + amount);}
+	public void addResistance(String element, int amount) { resistances.put(element, resistances.getOrDefault(element, 0) + amount); }
 	
-	public void addBonus(String stat, int amount) {bonuses.put(stat, bonuses.getOrDefault(stat, 0) + amount);}
+	public void addBonus(String stat, int amount) { bonuses.put(stat, bonuses.getOrDefault(stat, 0) + amount); }
 	
-	public void setSetName(String setName) {this.setName = setName;}
+	public void setSetName(String setName) { this.setName = setName; }
 	
 	public void repair(int amount) {
 		durability = Math.min(maxDurability, durability + amount);

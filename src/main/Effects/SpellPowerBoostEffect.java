@@ -1,11 +1,9 @@
 package Effects;
 
-
 /**
- * Spell power boost effect
+ * Spell power boost effect.
  */
-class SpellPowerBoostEffect extends StatusEffect
-{
+public class SpellPowerBoostEffect extends StatusEffect {
 	public SpellPowerBoostEffect(int duration, int powerBoost) {
 		super("Spell Power", duration, powerBoost, true);
 	}

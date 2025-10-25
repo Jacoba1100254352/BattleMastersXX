@@ -1,14 +1,26 @@
-package Enemy;// ================================================================================
+package Enemy;
+
+// ================================================================================
 // ENHANCED ENEMY SYSTEM - Should be in Enemy.Enemy.java
 // Complete enemy system with AI behavior and advanced mechanics
 // ================================================================================
+
+import Effects.EnrageEffect;
+import Effects.StatusEffect;
 import Items.Armor;
 import Items.Item;
+import Items.ItemFactory;
 import Items.Weapon;
+import Player.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
- * Enhanced Enemy.Enemy class
+ * Enhanced Enemy class.
  */
 public class Enemy {
     private String name;

@@ -1,12 +1,21 @@
-package Combat;// ================================================================================
+package Combat;
+
+// ================================================================================
 // COMPLETE COMBAT SYSTEM - Should be in Combat.CombatSystem.java
 // Advanced turn-based combat with multiple mechanics
 // ================================================================================
 
 import Effects.StatusEffect;
 import Enemy.Enemy;
+import Player.Player;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 // ================================================================================
 // SPELL SYSTEM - Should be in Combat.SpellSystem.java

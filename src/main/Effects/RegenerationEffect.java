@@ -1,14 +1,12 @@
 package Effects;
 
-
 import Enemy.Enemy;
-
+import Player.Player;
 
 /**
- * Regeneration effect for healing over time
+ * Regeneration effect for healing over time.
  */
-class RegenerationEffect extends StatusEffect
-{
+public class RegenerationEffect extends StatusEffect {
 	public RegenerationEffect(int duration, int healPerTurn) {
 		super("Regeneration", duration, healPerTurn, true);
 	}

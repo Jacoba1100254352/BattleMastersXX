@@ -1,11 +1,9 @@
 package Effects;
 
-
 /**
- * Enrage effect for increased damage
+ * Enrage effect for increased damage.
  */
-class EnrageEffect extends StatusEffect
-{
+public class EnrageEffect extends StatusEffect {
 	public EnrageEffect(int duration) {
 		super("Enraged", duration, 30, true); // 30% damage increase
 	}

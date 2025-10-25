@@ -1,12 +1,13 @@
 package Items;
 
+import Effects.SpellPowerBoostEffect;
+import Player.Player;
 
 /**
- * Enhanced Mana Potion with different effects
+ * Enhanced Mana Potion with different effects.
  */
-class ManaPotion extends Consumable
-{
-	private int manaAmount;
+public class ManaPotion extends Consumable {
+	private final int manaAmount;
 	private boolean boostSpellPower;
 	private int boostDuration;
 	
@@ -22,15 +23,18 @@ class ManaPotion extends Consumable
 	public void use(Player player) {
 		player.restoreMana(manaAmount);
 		
-		if (boostSpellPower) {
+		if (boostSpellPower && boostDuration > 0) {
 			player.addStatusEffect("spell_power", new SpellPowerBoostEffect(boostDuration, 25));
 			System.out.println("Your magical abilities feel enhanced!");
 		}
 	}
 	
 	public void setSpellPowerBoost(int duration) {
+		if (duration <= 0) {
+			throw new IllegalArgumentException("Spell power boost duration must be positive.");
+		}
 		this.boostSpellPower = true;
 		this.boostDuration = duration;
-		this.description += " and boosts spell power";
+		this.description = String.format("%s and boosts spell power", description);
 	}
 }

@@ -1,12 +1,13 @@
 package Items;
 
+import Effects.RegenerationEffect;
+import Player.Player;
 
 /**
- * Enhanced Health Potion with different tiers
+ * Enhanced Health Potion with different tiers.
  */
-class HealthPotion extends Consumable
-{
-	private int healAmount;
+public class HealthPotion extends Consumable {
+	private final int healAmount;
 	private boolean overTimeHealing;
 	private int duration;
 	
@@ -20,8 +21,8 @@ class HealthPotion extends Consumable
 	
 	@Override
 	public void use(Player player) {
-		if (overTimeHealing) {
-			player.addStatusEffect("regeneration", new RegenerationEffect(duration, healAmount / duration));
+		if (overTimeHealing && duration > 0) {
+			player.addStatusEffect("regeneration", new RegenerationEffect(duration, Math.max(1, healAmount / duration)));
 			System.out.println("You feel a warm healing energy flowing through you.");
 		} else {
 			player.heal(healAmount);
@@ -29,6 +30,9 @@ class HealthPotion extends Consumable
 	}
 	
 	public void setOverTimeHealing(int duration) {
+		if (duration <= 0) {
+			throw new IllegalArgumentException("Duration must be positive for over-time healing.");
+		}
 		this.overTimeHealing = true;
 		this.duration = duration;
 		this.description = String.format("Restores %d HP over %d turns", healAmount, duration);

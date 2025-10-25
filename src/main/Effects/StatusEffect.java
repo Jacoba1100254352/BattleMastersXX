@@ -1,17 +1,13 @@
-package Effects;// ================================================================================
-// STATUS EFFECT SYSTEM - Should be in Effects.StatusEffect.java
-// Complete status effect system with various effects
-// ================================================================================
-
+package Effects;
 
 /**
- * Base class for all status effects
+ * Base class for all status effects.
  */
-abstract class StatusEffect {
-    protected String name;
+public abstract class StatusEffect {
+    protected final String name;
     protected int duration;
-    protected int strength;
-    protected boolean beneficial;
+    protected final int strength;
+    protected final boolean beneficial;
     
     public StatusEffect(String name, int duration, int strength, boolean beneficial) {
         this.name = name;

@@ -13,10 +13,15 @@ import Items.ItemFactory;
 import Prestige.PrestigeSystem;
 import Quests.WanderingMerchant;
 import Scene.GameWorld;
-import Player.Player;
 import Scene.TimeWeatherSystem;
+import Scene.support.NPCSystem;
+import Scene.support.ShopSystem;
+import Player.Player;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);

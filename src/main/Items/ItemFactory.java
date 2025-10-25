@@ -1,9 +1,13 @@
-package Items;// ================================================================================
+package Items;
+
+// ================================================================================
 // ITEM FACTORY - Should be in Items.ItemFactory.java
 // Creates all items with proper configuration
 // ================================================================================
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 public class ItemFactory {
     private static Map<String, String[]> weaponsByElement;
